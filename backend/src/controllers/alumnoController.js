@@ -37,6 +37,7 @@ exports.registrarAlumno = async (req, res) => {
 
 exports.actualizarAlumno = async (req, res) => {
   const id = req.params.id;
+  console.log('[REGISTRAR] Datos del nuevo alumno recibidos:', req.body);
   try {
     await Alumno.update(id, req.body);
     res.json({ mensaje: 'Alumno actualizado correctamente' });

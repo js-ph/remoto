@@ -95,43 +95,104 @@ export default function AdminPage() {
     cargarMunicipios();
   }, [formData.idEstado]);
 
-  // Crear o actualizar registro
-  const guardarRegistro = async (e) => {
-    e.preventDefault();
-    const isEdit = editando;
-    const endpoint = isEdit
-      ? tipoUsuario === 'Alumno'
-        ? `/admin/actualizar-alumno/${formData.idAlumno}`
-        : tipoUsuario === 'Docente'
-        ? `/admin/actualizar-docente/${formData.idDocente}`
-        : `/admin/actualizar-admin/${formData.idUsuario}`
-      : tipoUsuario === 'Alumno'
-      ? '/admin/registrar-alumno'
-      : tipoUsuario === 'Docente'
-      ? '/admin/registrar-docente'
+const guardarRegistro = async (e) => {
+  e.preventDefault();
+  const isEdit = editando;
+
+  let endpoint = '';
+  let bodyData = {};
+
+  if (tipoUsuario === 'Alumno') {
+    endpoint = isEdit
+      ? `/admin/actualizar-alumno/${formData.idAlumno}`
+      : '/admin/registrar-alumno';
+    bodyData = {
+      nombre: formData.nombre,
+      apellido_paterno: formData.apellido_paterno,
+      apellido_materno: formData.apellido_materno,
+      fecha_de_nacimiento: formData.fecha_de_nacimiento,
+      sexo: formData.sexo,
+      curp: formData.curp,
+      idEstado: formData.idEstado,
+      idMunicipio: formData.idMunicipio,
+      usuario: String(formData.usuario),
+      contrasena: formData.contrasena,
+      correo_electronico: formData.correo_electronico,
+      idCarrera: formData.idCarrera,
+    };
+  } else if (tipoUsuario === 'Docente') {
+    endpoint = isEdit
+      ? `/admin/actualizar-docente/${formData.idDocente}`
+      : '/admin/registrar-docente';
+    bodyData = {
+      nombre: formData.nombre,
+      apellido_paterno: formData.apellido_paterno,
+      apellido_materno: formData.apellido_materno,
+      fecha_de_nacimiento: formData.fecha_de_nacimiento,
+      sexo: formData.sexo,
+      curp: formData.curp,
+      idEstado: formData.idEstado,
+      idMunicipio: formData.idMunicipio,
+      usuario: String(formData.usuario),
+      contrasena: formData.contrasena,
+      correo_electronico: formData.correo_electronico,
+    };
+  } else if (tipoUsuario === 'Admin') {
+    endpoint = isEdit
+      ? `/admin/actualizar-admin/${formData.idUsuario}`
       : '/admin/registrar-admin';
+    bodyData = {
+      nombre: formData.nombre,
+      apellido_paterno: formData.apellido_paterno,
+      apellido_materno: formData.apellido_materno,
+      fecha_de_nacimiento: formData.fecha_de_nacimiento,
+      sexo: formData.sexo,
+      curp: formData.curp,
+      idEstado: formData.idEstado,
+      idMunicipio: formData.idMunicipio,
+      usuario: String(formData.usuario),
+      contrasena: formData.contrasena,
+      correo_electronico: formData.correo_electronico,
+    };
+  }
 
-    try {
-      const res = await fetch(`${BACK_URL}${endpoint}`, {
-        method: isEdit ? 'PUT' : 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error(isEdit ? 'Error al actualizar registro' : 'Error al crear registro');
+  try {
+    const res = await fetch(`${BACK_URL}${endpoint}`, {
+      method: isEdit ? 'PUT' : 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyData),
+    });
 
-      setFormData({});
-      setEditando(false);
-      setError('');
-      cargarRegistros();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+    if (!res.ok) throw new Error(isEdit ? 'Error al actualizar registro' : 'Error al crear registro');
+
+    setFormData({});
+    setEditando(false);
+    setError('');
+    cargarRegistros();
+  } catch (err) {
+    setError(err.message);
+  }
+};
 
   // Editar registro
   const editarRegistro = (registro) => {
-    setFormData(registro);
+    if (tipoUsuario === 'Alumno') {
+      setFormData({
+        ...registro,
+        idAlumno: registro.idAlumno
+      });
+    } else if (tipoUsuario === 'Docente') {
+      setFormData({
+        ...registro,
+        idDocente: registro.idDocente
+      });
+    } else if (tipoUsuario === 'Admin') {
+      setFormData({
+        ...registro,
+        idUsuario: registro.idUsuario
+      });
+    }
     setEditando(true);
   };
 
@@ -184,8 +245,16 @@ export default function AdminPage() {
             <input type="text" placeholder="Apellido Paterno" value={formData.apellido_paterno || ''} onChange={(e) => setFormData({ ...formData, apellido_paterno: e.target.value })} required className="p-2 border rounded w-full"/>
             <input type="text" placeholder="Apellido Materno" value={formData.apellido_materno || ''} onChange={(e) => setFormData({ ...formData, apellido_materno: e.target.value })} required className="p-2 border rounded w-full"/>
             
-            <input type="text" placeholder="Usuario" value={formData.usuario || ''} disabled className="p-2 border rounded w-full"/>
-            
+            <input
+            type="text"
+            placeholder="Usuario"
+            value={formData.usuario || ''}
+            onChange={(e) => setFormData({ ...formData, usuario: e.target.value })}
+            className="p-2 border rounded w-full"
+            required
+            readOnly={editando} 
+          />
+
             <input type="password" placeholder="Contraseña" value={formData.contrasena || ''} onChange={(e) => setFormData({ ...formData, contrasena: e.target.value })} required className="p-2 border rounded w-full"/>
             <input type="email" placeholder="Correo Electrónico" value={formData.correo_electronico || ''} onChange={(e) => setFormData({ ...formData, correo_electronico: e.target.value })} required className="p-2 border rounded w-full"/>
             <input type="text" placeholder="CURP" value={formData.curp || ''} onChange={(e) => setFormData({ ...formData, curp: e.target.value })} required className="p-2 border rounded w-full"/>

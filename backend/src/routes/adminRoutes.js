@@ -96,7 +96,7 @@ router.post('/registrar-alumno',
     validar(alumnoSchema), 
     validarUsuarioUnico, 
     alumnoController.registrarAlumno
-);router.put('/actualizar-alumno/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), validar(alumnoSchema), alumnoController.actualizarAlumno);
+);router.put('/actualizar-alumno/:id', verificarSesion, verificarPerfil(['Superadmin']), debugBody, validar(idParamSchema, 'params'), validar(alumnoSchema), alumnoController.actualizarAlumno);
 router.delete('/eliminar-alumno/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), alumnoController.eliminarAlumno);
 
 // ===============================
@@ -105,7 +105,7 @@ router.delete('/eliminar-alumno/:id', verificarSesion, verificarPerfil(['Superad
 router.get('/docentes', verificarSesion, verificarPerfil(['Superadmin', 'Admin']), docenteController.obtenerDocentes);
 router.get('/docentes/:id', verificarSesion, verificarPerfil(['Superadmin', 'Admin']), validar(idParamSchema, 'params'), docenteController.obtenerDocentePorId);
 router.post('/registrar-docente', verificarSesion, verificarPerfil(['Superadmin']), validar(docenteSchema), docenteController.registrarDocente);
-router.put('/actualizar-docente/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), validar(docenteSchema), docenteController.actualizarDocente);
+router.put('/actualizar-docente/:id', verificarSesion, verificarPerfil(['Superadmin']), debugBody, validar(idParamSchema, 'params'), validar(docenteSchema), docenteController.actualizarDocente);
 router.delete('/eliminar-docente/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), docenteController.eliminarDocente);
 
 // ===============================
@@ -114,7 +114,7 @@ router.delete('/eliminar-docente/:id', verificarSesion, verificarPerfil(['Supera
 router.get('/administradores', verificarSesion, verificarPerfil(['Superadmin', 'Admin']), adminController.obtenerAdmins);
 router.get('/administradores/:id', verificarSesion, verificarPerfil(['Superadmin', 'Admin']), validar(idParamSchema, 'params'), adminController.obtenerAdminPorId);
 router.post('/registrar-admin', verificarSesion, verificarPerfil(['Superadmin']), validar(adminSchema), validarUsuarioUnico, adminController.registrarAdmin);
-router.put('/actualizar-admin/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), validar(adminSchema), adminController.actualizarAdmin);
+router.put('/actualizar-admin/:id', verificarSesion, verificarPerfil(['Superadmin']), debugBody, validar(idParamSchema, 'params'), validar(adminSchema), adminController.actualizarAdmin);
 router.delete('/eliminar-admin/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), adminController.eliminarAdmin);
 
 // ===============================
