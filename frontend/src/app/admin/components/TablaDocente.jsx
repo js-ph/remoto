@@ -1,5 +1,5 @@
 'use client';
-export default function TablaDocente({ docentes = [], eliminarRegistro }) {
+export default function TablaDocente({ docentes = [], eliminarRegistro, editarRegistro }) {
   if (!docentes.length) return <p>No hay docentes registrados.</p>;
 
   return (
@@ -35,7 +35,13 @@ export default function TablaDocente({ docentes = [], eliminarRegistro }) {
               <td className="p-3">{d.curp}</td>
               <td className="p-3">{d.estado}</td>
               <td className="p-3">{d.municipio}</td>
-              <td className="p-3 text-center">
+              <td className="p-3 text-center flex gap-2 justify-center">
+                <button
+                  onClick={() => editarRegistro(d)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
+                >
+                  Editar
+                </button>
                 <button
                   onClick={() => eliminarRegistro(d.idDocente)}
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors"

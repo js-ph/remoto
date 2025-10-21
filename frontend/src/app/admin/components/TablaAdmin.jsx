@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-export default function TablaAdmin({ admins = [], eliminarRegistro }) {
+export default function TablaAdmin({ admins = [], eliminarRegistro, editarRegistro }) {
   if (!admins.length) return <p>No hay administradores registrados.</p>;
 
   return (
@@ -40,7 +40,13 @@ export default function TablaAdmin({ admins = [], eliminarRegistro }) {
               <td className="p-3">{a.curp}</td>
               <td className="p-3">{a.estado}</td>
               <td className="p-3">{a.municipio}</td>
-              <td className="p-3 text-center">
+              <td className="p-3 text-center flex gap-2 justify-center">
+                <button
+                  onClick={() => editarRegistro(a)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
+                >
+                  Editar
+                </button>
                 <button
                   onClick={() => eliminarRegistro(a.idUsuario)}
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors"
