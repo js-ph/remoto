@@ -218,4 +218,27 @@ const getHorario = async (id) => {
   return rows;
 };
 
-module.exports = { getAll, getById, create, update, remove, getCalificaciones, getHorario };
+const getGrupo = async (id) => {
+  const rows = await pool.query(
+    `SELECT 
+    g.idGrupo,
+    g.clave_grupo,
+    g.cupo,
+    m.nombre_materia,
+    a.usuario AS Alumno
+    FROM dbo_grupo g
+    INNER JOIN dbo_materias m 
+        ON g.idMateria = m.idMateria
+    INNER JOIN dbo_inscripciones i 
+        ON g.idGrupo = i.idGrupo
+    INNER JOIN dbo_usuario a 
+        ON i.idAlumno = a.idUsuario
+    WHERE i.idAlumno = ?
+    ORDER BY m.nombre_materia DESC;
+    `,
+    [id]
+  );
+  return rows;
+};
+
+module.exports = { getAll, getById, create, update, remove, getCalificaciones, getHorario, getGrupo };
