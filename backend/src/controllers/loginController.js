@@ -1,32 +1,45 @@
 const AuthModel = require('../models/authModel');
 
 exports.login = async (req, res) => {
-  const { usuario, contrasena } = req.body;
+    const { usuario, contrasena } = req.body;
+    try {
+        const user = await AuthModel.findUser(usuario, contrasena);
+        
+        if (!user) {
+            return res.status(401).json({ error: 'Credenciales inválidas' });
+        }
 
-  try {
-    const user = await AuthModel.findUser(usuario, contrasena);
-    if (!user) return res.status(401).json({ error: 'Credenciales inválidas' });
+        let idEntidad = null;
+        if (user.perfil === 'Docente') idEntidad = await AuthModel.getDocenteByUserId(user.idUsuario);
+        if (user.perfil === 'Alumno') idEntidad = await AuthModel.getAlumnoByUserId(user.idUsuario);
 
-    let idEntidad = null;
-    if (user.perfil === 'Docente') idEntidad = await AuthModel.getDocenteByUserId(user.idUsuario);
-    if (user.perfil === 'Alumno') idEntidad = await AuthModel.getAlumnoByUserId(user.idUsuario);
+        req.session.usuario = { idUsuario: user.idUsuario, idEntidad, usuario: user.usuario, perfil: user.perfil };
 
-    req.session.usuario = { idUsuario: user.idUsuario, idEntidad, usuario: user.usuario, perfil: user.perfil };
+        await AuthModel.recordLogin(user.idUsuario); 
+        
+        res.json({ 
+            mensaje: 'Login exitoso', 
+            usuario: { id: user.idUsuario, usuario: user.usuario, perfil: user.perfil } 
+        });
 
-    res.json({ mensaje: 'Login exitoso', usuario: { id: user.idUsuario, usuario: user.usuario, perfil: user.perfil } });
-
-  } catch (err) {
-    console.error('Error en login:', err);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
+    } catch (err) {
+        console.error("Error en el login:", err);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
 };
 
-exports.logout = (req, res) => {
-  req.session.destroy(err => {
-    if (err) return res.status(500).json({ error: 'Error al cerrar sesión' });
-    res.clearCookie('connect.sid');
-    res.json({ mensaje: 'Sesión cerrada correctamente' });
-  });
+exports.logout = async (req, res) => {
+    const idUsuario = req.session.usuario?.idUsuario;
+    if (idUsuario) {
+        await AuthModel.recordLogout(idUsuario); 
+    }
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: 'No se pudo cerrar la sesión' });
+        }
+        res.clearCookie('connect.sid'); 
+        res.json({ mensaje: 'Logout exitoso' });
+    });
 };
 
 exports.getRoles = async (req, res) => {

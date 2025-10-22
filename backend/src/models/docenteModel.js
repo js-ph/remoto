@@ -139,18 +139,37 @@ const remove = async (idDocente) => {
 
 const getGruposByDocente = async (idDocente) => {
   const rows = await pool.query(
-    `SELECT g.*, m.nombre_materia, m.creditos, m.semestre,
-            COUNT(DISTINCT i.idAlumno) AS alumnos_inscritos
+    `SELECT 
+        g.idGrupo,
+        g.clave_grupo,
+        g.cupo,
+        g.periodo,
+        g.idMateria,
+        g.idDocente,
+        m.nombre_materia,
+        m.creditos,
+        m.semestre,
+        COUNT(DISTINCT i.idAlumno) AS alumnos_inscritos
      FROM dbo_grupo g
      INNER JOIN dbo_materias m ON g.idMateria = m.idMateria
      LEFT JOIN dbo_inscripciones i ON g.idGrupo = i.idGrupo
      WHERE g.idDocente = ?
-     GROUP BY g.idGrupo
+     GROUP BY 
+        g.idGrupo,
+        g.clave_grupo,
+        g.cupo,
+        g.periodo,
+        g.idMateria,
+        g.idDocente,
+        m.nombre_materia,
+        m.creditos,
+        m.semestre
      ORDER BY g.periodo DESC`,
     [idDocente]
   );
   return rows;
 };
+
 
 const getHorario = async (id) => {
   const rows = await pool.query(

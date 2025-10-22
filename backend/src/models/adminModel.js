@@ -102,10 +102,10 @@ const update = async (idAdmin, {
     );
 
     if (adminRows.length === 0) {
-      throw new Error('Alumno no encontrado');
+      throw new Error('Administrador no encontrado');
     }
 
-    const { idUsuario, idPersona } = alumnoRows[0];
+    const { idUsuario, idPersona } = adminRows[0];
 
     await conn.query(
       `UPDATE dbo_persona

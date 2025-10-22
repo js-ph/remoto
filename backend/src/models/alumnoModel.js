@@ -43,7 +43,8 @@ const create = async ({
   sexo, curp, idEstado, idMunicipio,
   usuario, contrasena, correo_electronico, idCarrera //matricula, semestre_actual
 }) => {
-  const idPerfil = 4; 
+  const idPerfil = 4;
+  const nuevoUsuario = 1; 
 
   let conn;
   try {
@@ -58,9 +59,9 @@ const create = async ({
     const idPersona = Number(personaResult.insertId);
 
     const usuarioResult = await conn.query(
-      `INSERT INTO dbo_usuario (idPersona, usuario, contrasena, correo_electronico)
-       VALUES (?, ?, ?, ?)`,
-      [idPersona, usuario, contrasena, correo_electronico]
+      `INSERT INTO dbo_usuario (idPersona, nuevoUsuario, usuario, contrasena, correo_electronico)
+       VALUES (?, ?, ?, ?, ?)`,
+      [idPersona, nuevoUsuario, usuario, contrasena, correo_electronico]
     );
     const idUsuario = Number(usuarioResult.insertId);
 
@@ -90,8 +91,8 @@ const create = async ({
 
 const update = async (idAlumno, {
   nombre, apellido_paterno, apellido_materno, fecha_de_nacimiento,
-  sexo, curp, idEstado, idMunicipio, usuario, contrasena, correo_electronico
-  //matricula, semestre_actual, idCarrera
+  sexo, curp, idEstado, idMunicipio, usuario, contrasena, correo_electronico, idCarrera
+  //matricula, semestre_actual, 
 }) => {
   let conn;
   try {
@@ -126,14 +127,13 @@ const update = async (idAlumno, {
        WHERE idUsuario = ?`,
       [usuario, contrasena, correo_electronico, idUsuario]
     );
-/*
     await conn.query(
       `UPDATE dbo_alumno
-       SET idCarrera = ?, matricula = ?, semestre_actual = ?
+       SET idCarrera = ?
        WHERE idUsuario = ?`,
-      [idCarrera, matricula, semestre_actual, idUsuario]
+      [idCarrera, idUsuario]
     );
-*/
+
     await conn.commit();
     return true; 
   } catch (err) {
@@ -218,4 +218,27 @@ const getHorario = async (id) => {
   return rows;
 };
 
-module.exports = { getAll, getById, create, update, remove, getCalificaciones, getHorario };
+const getGrupo = async (id) => {
+  const rows = await pool.query(
+    `SELECT 
+    g.idGrupo,
+    g.clave_grupo,
+    g.cupo,
+    m.nombre_materia,
+    a.usuario AS Alumno
+    FROM dbo_grupo g
+    INNER JOIN dbo_materias m 
+        ON g.idMateria = m.idMateria
+    INNER JOIN dbo_inscripciones i 
+        ON g.idGrupo = i.idGrupo
+    INNER JOIN dbo_usuario a 
+        ON i.idAlumno = a.idUsuario
+    WHERE i.idAlumno = ?
+    ORDER BY m.nombre_materia DESC;
+    `,
+    [id]
+  );
+  return rows;
+};
+
+module.exports = { getAll, getById, create, update, remove, getCalificaciones, getHorario, getGrupo };

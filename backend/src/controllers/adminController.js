@@ -38,6 +38,7 @@ exports.registrarAdmin = async (req, res) => {
 
 exports.actualizarAdmin = async (req, res) => {
   const id = req.params.id;
+  console.log('[REGISTRAR] Datos del nuevo alumno recibidos:', req.body);
   try {
     const updated = await Admin.update(id, req.body);
     if (!updated) return res.status(404).json({ error: 'Administrador no encontrado' });

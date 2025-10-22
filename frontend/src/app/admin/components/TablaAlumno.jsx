@@ -1,5 +1,5 @@
 'use client';
-export default function TablaAlumno({ alumnos = [], eliminarRegistro }) {
+export default function TablaAlumno({ alumnos = [], eliminarRegistro, editarRegistro }) {
   if (!alumnos.length) return <p>No hay alumnos registrados.</p>;
 
   return (
@@ -39,7 +39,13 @@ export default function TablaAlumno({ alumnos = [], eliminarRegistro }) {
               <td className="p-3">{a.curp}</td>
               <td className="p-3">{a.estado}</td>
               <td className="p-3">{a.municipio}</td>
-              <td className="p-3 text-center">
+              <td className="p-3 text-center flex gap-2 justify-center">
+                <button
+                  onClick={() => editarRegistro(a)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
+                >
+                  Editar
+                </button>
                 <button
                   onClick={() => eliminarRegistro(a.idAlumno)}
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors"

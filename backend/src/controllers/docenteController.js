@@ -44,6 +44,7 @@ exports.registrarDocente = async (req, res) => {
 
 exports.actualizarDocente = async (req, res) => {
   const id = req.params.id;
+  console.log('[REGISTRAR] Datos del nuevo alumno recibidos:', req.body);
   try {
     const updated = await Docente.update(id, req.body);
     if (!updated) return res.status(404).json({ error: 'Docente no encontrado' });

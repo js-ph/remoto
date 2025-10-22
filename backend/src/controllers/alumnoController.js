@@ -37,6 +37,7 @@ exports.registrarAlumno = async (req, res) => {
 
 exports.actualizarAlumno = async (req, res) => {
   const id = req.params.id;
+  console.log('[REGISTRAR] Datos del nuevo alumno recibidos:', req.body);
   try {
     await Alumno.update(id, req.body);
     res.json({ mensaje: 'Alumno actualizado correctamente' });
@@ -98,6 +99,26 @@ exports.obtenerHorarioporAlumno = async (req, res) => {
     console.error('Error al obtener horarios del alumno:', error);
     res.status(500).json({
       mensaje: 'Error al obtener horarios del alumno',
+      detalle: error.message,
+    });
+  }
+};
+
+exports.obtenerGrupoporAlumno = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const grupo = await Alumno.getGrupo(id);
+
+    if (grupo.length === 0) {
+      return res.status(404).json({ mensaje: 'No hay grupos disponibles' });
+    }
+
+    res.json({ grupo });
+  } catch (error) {
+    console.error('Error al obtener grupos del alumno:', error);
+    res.status(500).json({
+      mensaje: 'Error al obtener grupos del alumno',
       detalle: error.message,
     });
   }

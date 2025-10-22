@@ -1,5 +1,16 @@
 const pool = require('../db/pool');
 
+const recordLogin = async (idUsuario) => {
+    await pool.query(
+        `UPDATE dbo_usuario SET ultimo_login = NOW() WHERE idUsuario = ?`,
+        [idUsuario]
+    );
+};
+
+const recordLogout = async (idUsuario) => {
+    return true; 
+};
+
 const findUser = async (usuario, contrasena) => {
   const rows = await pool.query(
     `SELECT u.idUsuario, u.usuario, u.contrasena, lp.nombre AS perfil
@@ -55,5 +66,7 @@ module.exports = {
   getAlumnoByUserId,
   getRoles,
   getRoleById,
-  getDatosPersonales
+  getDatosPersonales,
+  recordLogin,
+  recordLogout
 };

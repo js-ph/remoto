@@ -9,4 +9,5 @@ const alumnoController = require('../controllers/alumnoController');
 
 router.get('/:id/calificaciones', validar(idParamSchema, 'params'), verificarSesion, alumnoController.obtenerCalificacionesPorAlumno);
 router.get('/:id/horario',validar(idParamSchema, 'params'), verificarSesion, alumnoController.obtenerHorarioporAlumno)
+router.get('/:id/grupo',validar(idParamSchema, 'params'), verificarSesion, alumnoController.obtenerGrupoporAlumno)
 module.exports = router;
