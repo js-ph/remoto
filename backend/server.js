@@ -14,8 +14,8 @@ app.use(cors({
 
 
 const loginRoutes = require('./src/routes/loginRoutes');
-//const alumnoRoutes = require('./src/routes/alumnoRoutes');
-//const docenteRoutes = require('./src/routes/docenteRoutes');
+const alumnoRoutes = require('./src/routes/alumnoRoutes');
+const docenteRoutes = require('./src/routes/docenteRoutes');
 const municipiosRoutes = require('./src/routes/municipiosRoutes');
 const estadosRoutes = require('./src/routes/estadosRoutes');
 const inicioRouter = require('./src/routes/inicioRoutes');
@@ -38,8 +38,8 @@ app.use(session({
 
 app.use('/admin', adminRoutes);
 app.use('/auth', loginRoutes);
-//app.use('/docente', docenteRoutes);
-//app.use('/alumno', alumnoRoutes);
+app.use('/docente', docenteRoutes);
+app.use('/alumno', alumnoRoutes);
 app.use('/municipios', municipiosRoutes);
 app.use('/estados', estadosRoutes);
 app.use('/inicio', inicioRouter);

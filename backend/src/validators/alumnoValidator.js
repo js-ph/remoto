@@ -79,35 +79,33 @@ const alumnoSchema = Joi.object({
       'any.required': 'El idMunicipio es obligatorio'
     }),
 
-  usuario: Joi.number()
-    .integer()
-    .required()
-    .custom((value, helpers) => {
-      if (value.toString().length !== 8) {
-        return helpers.error('number.length');
-      }
-      return value;
-    })
-    .messages({
-      'number.base': 'El usuario debe ser un número',
-      'number.length': 'El usuario debe tener exactamente 8 dígitos',
-      'any.required': 'El campo usuario es obligatorio'
-    }),
+  usuario: Joi.string() 
+      .required()
+      .min(8) 
+      .max(8) 
+      .pattern(/^[0-9]+$/) 
+      .messages({
+          'string.base': 'El usuario debe ser una cadena de texto (números)',
+          'string.empty': 'El campo usuario no puede estar vacío',
+          'string.min': 'El usuario debe tener exactamente 8 dígitos',
+          'string.max': 'El usuario debe tener exactamente 8 dígitos',
+          'string.pattern.base': 'El usuario solo debe contener números', 
+          'any.required': 'El campo usuario es obligatorio'
+      }),
 
-  contrasena: Joi.number()
-    .integer()
+  contrasena: Joi.string()
     .required()
-    .custom((value, helpers) => {
-      if (value.toString().length !== 4) {
-        return helpers.error('number.length');
-      }
-      return value;
-    })
-    .messages({
-      'number.base': 'La contraseña debe ser un número',
-      'number.length': 'La contraseña debe tener exactamente 4 dígitos',
-      'any.required': 'El campo contraseña es obligatorio'
-    }),
+      .min(4) 
+      .max(4) 
+      .pattern(/^[0-9]+$/) 
+      .messages({
+          'string.base': 'El campo contraseña debe ser una cadena de texto (números)',
+          'string.empty': 'El campo contraseña no puede estar vacío',
+          'string.min': 'El campo contraseña debe tener exactamente 4 dígitos',
+          'string.max': 'El campo contraseña debe tener exactamente 4 dígitos',
+          'string.pattern.base': 'El campo contraseña solo debe contener números', 
+          'any.required': 'El campo contraseña es obligatorio'
+      }),
 
   correo_electronico: Joi.string()
     .email()
@@ -118,14 +116,14 @@ const alumnoSchema = Joi.object({
       'any.required': 'El correo electrónico es obligatorio'
     }),
 
-  matricula: Joi.string()
+/* matricula: Joi.string()
     .required()
     .messages({
       'string.base': 'La matrícula debe ser texto',
       'string.empty': 'La matrícula no puede estar vacía',
       'any.required': 'La matrícula es obligatoria'
     }),
-
+    
   semestre_actual: Joi.number()
     .integer()
     .min(1)
@@ -138,7 +136,7 @@ const alumnoSchema = Joi.object({
       'number.max': 'El semestre actual no puede ser mayor a 12',
       'any.required': 'El semestre actual es obligatorio'
     }),
-
+*/
   idCarrera: Joi.number()
     .integer()
     .required()

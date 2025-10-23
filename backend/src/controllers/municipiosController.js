@@ -1,13 +1,13 @@
 const pool = require('../db/pool');
 
 exports.getMunicipiosPorEstado = async (req, res) => {
-  const { estado_id } = req.params;
+  const { idEstado } = req.params;
 
   try {
     const conn = await pool.getConnection();
     const rows = await conn.query(
-      'SELECT id_municipio, nombre FROM dbo_municipios WHERE estado_id = ?',
-      [estado_id]
+      'SELECT idMunicipio, municipio FROM dbo_municipios WHERE idEstado = ?',
+      [idEstado]
     );
     conn.release();
 

@@ -10,6 +10,3 @@ __pycache__/
 
 # Directorios de Node
 node_modules/
-
-# Archivos de Visual Studio
-.vs/

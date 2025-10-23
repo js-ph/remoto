@@ -1,70 +1,50 @@
-const pool = require('../db/pool');
+const AuthModel = require('../models/authModel');
 
-//Ya tiene validaciones /authvalidator
 exports.login = async (req, res) => {
-  const { usuario, contrasena } = req.body;
+    const { usuario, contrasena } = req.body;
+    try {
+        const user = await AuthModel.findUser(usuario, contrasena);
+        
+        if (!user) {
+            return res.status(401).json({ error: 'Credenciales inválidas' });
+        }
 
-  try {
-    const rows = await pool.query(
-      `SELECT u.idUsuario, u.usuario, u.contrasena, lp.nombre AS perfil
-       FROM dbo_usuario u
-       LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
-       LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
-       WHERE u.usuario = ? AND u.contrasena = ?`,
-      [usuario, contrasena]
-    );
+        let idEntidad = null;
+        if (user.perfil === 'Docente') idEntidad = await AuthModel.getDocenteByUserId(user.idUsuario);
+        if (user.perfil === 'Alumno') idEntidad = await AuthModel.getAlumnoByUserId(user.idUsuario);
 
-    const user = rows[0]; 
-    if (!user) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+        req.session.usuario = { idUsuario: user.idUsuario, idEntidad, usuario: user.usuario, perfil: user.perfil };
+
+        await AuthModel.recordLogin(user.idUsuario); 
+        
+        res.json({ 
+            mensaje: 'Login exitoso', 
+            usuario: { id: user.idUsuario, usuario: user.usuario, perfil: user.perfil } 
+        });
+
+    } catch (err) {
+        console.error("Error en el login:", err);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
-
-    let idEntidad = null;
-
-    if (user.perfil === 'Docente') {
-      const docenteRows = await pool.query('SELECT idDocente FROM dbo_docente WHERE idUsuario = ?', [user.idUsuario]);
-      idEntidad = docenteRows[0]?.idDocente;
-    } else if (user.perfil === 'Alumno') {
-      const alumnoRows = await pool.query('SELECT idAlumno FROM dbo_alumno WHERE idUsuario = ?', [user.idUsuario]);
-      idEntidad = alumnoRows[0]?.idAlumno;
-    }
-
-    req.session.usuario = {
-      idUsuario: user.idUsuario,
-      idEntidad,
-      usuario: user.usuario,
-      perfil: user.perfil
-    };
-
-    res.json({
-      mensaje: 'Login exitoso',
-      usuario: {
-        id: user.idUsuario,
-        usuario: user.usuario,
-        perfil: user.perfil || 'Sin perfil asignado'
-      }
-    });
-  } catch (err) {
-    console.error('Error en login:', err);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
 };
 
-exports.logout = (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ error: 'Error al cerrar sesión' });
+exports.logout = async (req, res) => {
+    const idUsuario = req.session.usuario?.idUsuario;
+    if (idUsuario) {
+        await AuthModel.recordLogout(idUsuario); 
     }
-    res.clearCookie('connect.sid');
-    res.clearCookie('connect.sid');
-    res.json({ mensaje: 'Sesión cerrada correctamente' });
-  });
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: 'No se pudo cerrar la sesión' });
+        }
+        res.clearCookie('connect.sid'); 
+        res.json({ mensaje: 'Logout exitoso' });
+    });
 };
 
 exports.getRoles = async (req, res) => {
   try {
-    const rows = await pool.query('SELECT nombre FROM dbo_login_perfil');
-    const roles = rows.map(r => r.nombre);
+    const roles = await AuthModel.getRoles();
     res.json({ roles });
   } catch (err) {
     console.error('Error al obtener roles:', err);
@@ -73,56 +53,36 @@ exports.getRoles = async (req, res) => {
 };
 
 exports.getRolbyID = async (req, res) => {
-  const idPerfil = req.params.id;
+  const idPerfil = Number(req.params.id);
+  if (!idPerfil || idPerfil <= 0) return res.status(400).json({ error: 'ID inválido' });
+
   try {
-    if (!idPerfil || isNaN(Number(idPerfil)) || Number(idPerfil) <= 0) {
-      return res.status(400).json({ error: 'ID de usuario inválido' });
-    }
-    const conn = await pool.query('SELECT nombre, descripcion FROM dbo_login_perfil WHERE idPerfil = ?', [Number(idPerfil)]);
-    if (conn[0].length === 0) {
-      return res.status(404).json({ error: 'Rol no encontrado' });
-    }
-    return res.json(conn[0]);
-  } catch (error) {
-    console.error('Error al obtener rol:', error);
-    return res.status(500).json({ error: 'Error al obtener rol' });
-  } 
+    const rol = await AuthModel.getRoleById(idPerfil);
+    if (!rol) return res.status(404).json({ error: 'Rol no encontrado' });
+    res.json(rol);
+  } catch (err) {
+    console.error('Error al obtener rol:', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
 };
 
 exports.getDatosPersonales = async (req, res) => {
   try {
     const usuarioSesion = req.session.usuario;
+    if (!usuarioSesion) return res.status(401).json({ error: 'No hay sesión activa' });
 
-    if (!usuarioSesion) {
-      return res.status(401).json({ error: 'No hay sesión activa' });
-    }
-    const datos = await pool.query(
-      `SELECT u.idUsuario, p.nombre, p.apellido_paterno, p.apellido_materno, u.usuario, u.correo_electronico, 
-       DATE_FORMAT(p.fecha_de_nacimiento, '%Y-%m-%d') AS fechaNacimiento,
-       p.sexo, p.curp, m.municipio, e.estado
-       FROM dbo_usuario u
-       INNER JOIN dbo_persona p ON u.idPersona = p.idPersona
-       INNER JOIN dbo_estados e ON p.idEstado = e.idEstado
-       INNER JOIN dbo_municipios m ON p.idMunicipio = m.idMunicipio
-       WHERE u.idUsuario = ?`,
-      [usuarioSesion.idUsuario]
-    );
+    const perfil = await AuthModel.getDatosPersonales(usuarioSesion.idUsuario);
+    if (!perfil) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-    if (datos.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
+    const apellidoCompleto = [perfil.apellido_paterno, perfil.apellido_materno].filter(Boolean).join(' ');
 
-    const perfil = datos[0];
-    const apellidoCompleto = [perfil.apellido_paterno, perfil.apellido_materno]
-    .filter(Boolean)
-    .join(' ');
-
-    return res.json({
+    res.json({
       mensaje: 'Sesión activa',
       Datos_Personales: {
         nombre: perfil.nombre,
         apellidos: apellidoCompleto,
         usuario: perfil.usuario,
+        perfil: perfil.perfil,
         correo: perfil.correo_electronico,
         fechaNacimiento: perfil.fechaNacimiento,
         sexo: perfil.sexo,
@@ -132,7 +92,7 @@ exports.getDatosPersonales = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Error al mostrar datos del usuario');
-    res.status(500).json({error: 'Error al consultar datos del usuario', detalle: err.message })
+    console.error('Error al mostrar datos del usuario', err);
+    res.status(500).json({ error: 'Error al consultar datos del usuario', detalle: err.message });
   }
 };

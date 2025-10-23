@@ -1,11 +1,8 @@
-const pool = require('../db/pool');
+const Carrera = require('../models/carreraModel');
 
-exports.getAllCarreras = async (req, res) => {
+exports.obtenerCarreras = async (req, res) => {
   try {
-    const carreras = await pool.query(`
-      SELECT idCarrera, carrera, duracion_semestres, descripcion, idPlantel
-      FROM dbo_carrera
-    `);
+    const carreras = await Carrera.getAll();
     res.json({ carreras });
   } catch (err) {
     console.error('Error al obtener carreras:', err);
@@ -13,61 +10,45 @@ exports.getAllCarreras = async (req, res) => {
   }
 };
 
-exports.getCarreraById = async (req, res) => {
-  const idCarrera = req.params.id;
+exports.obtenerCarreraPorId = async (req, res) => {
+  const id = req.params.id;
   try {
-    const rows = await pool.query(`
-      SELECT idCarrera, carrera, duracion_semestres, descripcion, idPlantel
-      FROM dbo_carrera
-      WHERE idCarrera = ?
-    `, [idCarrera]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Carrera no encontrada' });
-    }
-
-    res.json({ carrera: rows[0] });
+    const carrera = await Carrera.getById(id);
+    if (!carrera) return res.status(404).json({ error: 'Carrera no encontrada' });
+    res.json({ carrera });
   } catch (err) {
     console.error('Error al obtener carrera:', err);
     res.status(500).json({ error: 'Error al consultar carrera', detalle: err.message });
   }
 };
 
-exports.createCarrera = async (req, res) => {
+exports.registrarCarrera = async (req, res) => {
   const { carrera, duracion_semestres, descripcion, idPlantel } = req.body;
 
-  if (!carrera || !duracion_semestres || !idPlantel) {
-    return res.status(400).json({ error: 'Faltan datos obligatorios de la carrera' });
+  if (!carrera || !duracion_semestres || !descripcion || !idPlantel) {
+    return res.status(400).json({ error: 'Faltan datos para registrar la carrera' });
   }
 
   try {
-    const result = await pool.query(`
-      INSERT INTO dbo_carrera (carrera, duracion_semestres, descripcion, idPlantel)
-      VALUES (?, ?, ?, ?)
-    `, [carrera, duracion_semestres, descripcion, idPlantel]);
-
-    res.json({ mensaje: 'Carrera creada correctamente', idCarrera: Number(result.insertId)});
+    const idCarrera = await Carrera.create({ carrera, duracion_semestres, descripcion, idPlantel });
+    res.status(201).json({ mensaje: 'Carrera creada correctamente', idCarrera });
   } catch (err) {
     console.error('Error al crear carrera:', err);
     res.status(500).json({ error: 'Error al crear carrera', detalle: err.message });
   }
 };
 
-exports.updateCarrera = async (req, res) => {
-  const idCarrera = req.params.id;
+exports.actualizarCarrera = async (req, res) => {
+  const id = req.params.id;
   const { carrera, duracion_semestres, descripcion, idPlantel } = req.body;
 
+  if (!carrera || !duracion_semestres || !descripcion || !idPlantel) {
+    return res.status(400).json({ error: 'Faltan datos para actualizar la carrera' });
+  }
+
   try {
-    const result = await pool.query(`
-      UPDATE dbo_carrera
-      SET carrera = ?, duracion_semestres = ?, descripcion = ?, idPlantel = ?
-      WHERE idCarrera = ?
-    `, [carrera, duracion_semestres, descripcion, idPlantel, idCarrera]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Carrera no encontrada' });
-    }
-
+    const affectedRows = await Carrera.update(id, { carrera, duracion_semestres, descripcion, idPlantel });
+    if (!affectedRows) return res.status(404).json({ error: 'Carrera no encontrada' });
     res.json({ mensaje: 'Carrera actualizada correctamente' });
   } catch (err) {
     console.error('Error al actualizar carrera:', err);
@@ -75,19 +56,12 @@ exports.updateCarrera = async (req, res) => {
   }
 };
 
-exports.deleteCarrera = async (req, res) => {
-  const idCarrera = req.params.id;
+exports.eliminarCarrera = async (req, res) => {
+  const id = req.params.id;
 
   try {
-    const result = await pool.query(`
-      DELETE FROM dbo_carrera
-      WHERE idCarrera = ?
-    `, [idCarrera]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Carrera no encontrada o ya eliminada' });
-    }
-
+    const affectedRows = await Carrera.remove(id);
+    if (!affectedRows) return res.status(404).json({ error: 'Carrera no encontrada' });
     res.json({ mensaje: 'Carrera eliminada correctamente' });
   } catch (err) {
     console.error('Error al eliminar carrera:', err);

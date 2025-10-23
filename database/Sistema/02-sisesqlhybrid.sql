@@ -1,6 +1,6 @@
 CREATE TABLE dbo_usuario (idUsuario int(10) NOT NULL AUTO_INCREMENT, idPersona int(10) NOT NULL, nuevoUsuario int(10) comment 'Función para saber si se activa un tutorial de nuevo usuario
 1 = Nuevo usuario
-0 = El usuario ya hizo login', Usuario int(10), contrasena int(10), correo_electronico varchar(255), fecha_de_creacion time, fecha_de_modificacion time, status int(10), ultimo_login date, idGrupo int(10), PRIMARY KEY (idUsuario));
+0 = El usuario ya hizo login', Usuario varchar(50), contrasena varchar(50), correo_electronico varchar(255), fecha_de_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP, fecha_de_modificacion time, status int(10), ultimo_login TIMESTAMP, idGrupo int(10), PRIMARY KEY (idUsuario));
 CREATE TABLE dbo_persona (idPersona int(10) NOT NULL AUTO_INCREMENT, nombre varchar(20), apellido_paterno varchar(20), apellido_materno varchar(20), fecha_de_nacimiento date, sexo char(255), curp varchar(18), idEstado int(10) NOT NULL, idMunicipio int(10) NOT NULL, PRIMARY KEY (idPersona));
 CREATE TABLE dbo_login_perfil (idPerfil int(10) NOT NULL AUTO_INCREMENT, nombre varchar(255), descripcion varchar(255), PRIMARY KEY (idPerfil));
 CREATE TABLE dbo_plantel (idPlantel int(10) NOT NULL AUTO_INCREMENT, idMunicipio int(10) NOT NULL, idEstado int(10) NOT NULL, nombre_plantel varchar(100), PRIMARY KEY (idPlantel));
@@ -20,7 +20,7 @@ Prorroga
 Etc', PRIMARY KEY (idPago));
 CREATE TABLE dbo_becas (idBeca int(10) NOT NULL AUTO_INCREMENT, PRIMARY KEY (idBeca));
 CREATE TABLE dbo_usuario_perfil (idPerfil_Usuario int(10) NOT NULL AUTO_INCREMENT, idUsuario int(10) NOT NULL, idPerfil int(10) NOT NULL, PRIMARY KEY (idPerfil_Usuario));
-CREATE TABLE dbo_alumno (idAlumno int(10) NOT NULL AUTO_INCREMENT, idUsuario int(10) NOT NULL, idCarrera int(10) NOT NULL, matricula varchar(255), semestre_actual varchar(255), PRIMARY KEY (idAlumno));
+CREATE TABLE dbo_alumno (idAlumno int(10) NOT NULL AUTO_INCREMENT, idUsuario int(10) NOT NULL, idCarrera int(10), matricula varchar(255), semestre_actual varchar(255), PRIMARY KEY (idAlumno));
 CREATE TABLE dbo_grupo (idGrupo int(10) NOT NULL AUTO_INCREMENT, idDocente int(10) NOT NULL, idMateria int(10) NOT NULL, periodo varchar(255), clave_grupo varchar(255), cupo int(10), PRIMARY KEY (idGrupo));
 CREATE TABLE dbo_calificaciones (idCalificación int(10) NOT NULL AUTO_INCREMENT, idInscripción int(10) NOT NULL, valor int(100), observaciones varchar(255), PRIMARY KEY (idCalificación));
 CREATE TABLE dbo_inscripciones (idInscripción int(10) NOT NULL AUTO_INCREMENT, idAlumno int(10) NOT NULL, idGrupo int(10) NOT NULL, PRIMARY KEY (idInscripción));
