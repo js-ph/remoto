@@ -1,0 +1,34 @@
+name: CI - Integration tests
+
+on:
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Security audit (backend)
+        working-directory: backend
+        run: npm install --no-audit --no-fund && npm audit --audit-level=high || true
+
+      - name: Install test tooling (repo root)
+        run: npm install --no-save jest@29.7.0 axios@1.7.9 wait-on@7.2.0
+
+      - name: Run integration tests with coverage
+        run: npx jest --config=jest.config.js --runInBand --coverage
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-coverage
+          path: coverage
