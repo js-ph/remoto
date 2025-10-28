@@ -1,0 +1,32 @@
+name: Performance - k6
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseUrl:
+        description: "Base URL del entorno (e.g., https://staging.tu-dominio.com)"
+        required: true
+        type: string
+  schedule:
+    - cron: '0 2 * * *' # diario a las 02:00 UTC
+
+jobs:
+  k6-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run k6 smoke test
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: tests/performance/k6-smoke.js
+          flags: --summary-export=summary.json
+        env:
+          K6_BASE_URL: ${{ github.event.inputs.baseUrl }}
+
+      - name: Upload k6 summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-summary
+          path: summary.json
