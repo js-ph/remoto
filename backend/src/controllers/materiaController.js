@@ -23,9 +23,10 @@ exports.obtenerMateriaPorId = async (req, res) => {
 };
 
 exports.registrarMateria = async (req, res) => {
+  const { idCarrera, nombre_materia, semestre, descripcion, creditos } = req.body; 
   try {
     const idMateria = await Materia.create({ idCarrera, nombre_materia, semestre, descripcion, creditos });
-    res.status(201).json({ mensaje: 'Materia creada correctamente', idMateria });
+    res.status(201).json({ mensaje: 'Materia creada correctamente'});
   } catch (err) {
     console.error('Error al crear materia:', err);
     res.status(500).json({ error: 'Error al crear materia', detalle: err.message });
@@ -34,9 +35,13 @@ exports.registrarMateria = async (req, res) => {
 
 exports.actualizarMateria = async (req, res) => {
   const id = req.params.id;
+  const { nombre_materia, semestre, descripcion, creditos } = req.body; 
+
   try {
-    const affectedRows = await Materia.update(id, { idCarrera, nombre_materia, semestre, descripcion, creditos });
+    const affectedRows = await Materia.update(id, { nombre_materia, semestre, descripcion, creditos });
+    
     if (!affectedRows) return res.status(404).json({ error: 'Materia no encontrada' });
+    
     res.json({ mensaje: 'Materia actualizada correctamente' });
   } catch (err) {
     console.error('Error al actualizar materia:', err);
