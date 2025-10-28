@@ -50,7 +50,7 @@ VALUES
 ('JOSE PEDRO', 'BALMACEDA', 'PASCAL', '2000-01-01', 'M', 'GENDOC000101HVZR3', 30, 30119),
 ('JOSEPH EMILIANO', 'RUANO', 'GALVEZ', '2001-08-07', 'M', 'JERG010807HVZALU01', 30, 30119),
 ('ALEXIS EMMANUEL', 'FERNANDEZ', 'GONZALEZ', '2003-09-21', 'M', 'AEFG030921HVZALU02', 30, 30119),
-('PEDRO PABLO', 'MORA', 'FLORES', '2003-06-29', 'M', 'PPMF030629HVZALU03', 30, 1001),
+('PEDRO PABLO', 'MORA', 'FLORES', '2003-06-29', 'M', 'PPMF030629HVZALU03', 30, 30119),
 ('DANIEL DE JESUS', 'NOGALES', 'ESCALONA', '2003-07-03', 'M', 'DJNE030703HVZALU04', 30, 30119),
 ('JESUS ALEJANDRO', 'LARA', 'CASTRO', '2003-09-05', 'M', 'JALC030905HVZALU05', 30, 30119),
 ('CLAUDIO', 'CARRERA', 'HERNANDEZ', '2001-10-30', 'M', 'CACH011030HVZALU06', 30, 30119),
@@ -83,8 +83,18 @@ VALUES
 (15, 1, 10001006, '1234', 'jesus.munoz@email.com', NOW(), NOW(), 1, CURDATE(), NULL);           -- Usuario id 15
 
 -- -----------------------------------------------------------------
--- 3. Población de tablas secundarias (docentes, alumnos, etc.)
+-- 3. Población de tablas secundarias (materias, docentes, alumnos, etc.)
 -- -----------------------------------------------------------------
+
+-- Datos para dbo_materias
+INSERT INTO dbo_materias (idCarrera, nombre_materia, semestre, descripcion, creditos)
+VALUES
+(8, 'POLÍTICA Y LEGISLACIÓN EN INFORMÁTICA', 9, 'Análisis de leyes y políticas aplicadas a la informática.', 6),
+(8, 'REDES ALTERNATIVAS', 9, 'Estudio de redes inalámbricas, distribuidas y nuevas arquitecturas.', 6),
+(8, 'SISTEMAS OPERATIVOS II', 9, 'Profundización en gestión de recursos, concurrencia y seguridad.', 6),
+(8, 'BASES DE DATOS AVANZADAS', 9, 'Diseño e implementación de bases de datos complejas y optimización.', 6),
+(8, 'FUNDAMENTOS DE ROBÓTICA', 9, 'Principios de robótica, sensores y actuadores.', 6),
+(8, 'SEMINARIO DE TESIS', 9, 'Desarrollo y presentación del proyecto de tesis profesional.', 6);
 
 -- Datos para dbo_docente
 INSERT INTO dbo_docente (idUsuario) VALUES
@@ -97,12 +107,12 @@ INSERT INTO dbo_docente (idUsuario) VALUES
 
 -- Datos para dbo_alumno
 INSERT INTO dbo_alumno (idUsuario, idCarrera, matricula, semestre_actual) VALUES
-(4, 1, '22103001', '9'), -- Joseph Emiliano Ruano Galvez
-(5, 1, '22103002', '9'), -- Alexis Emmanuel Fernandez Gonzalez
-(6, 1, '22103003', '9'), -- Pedro Pablo Mora Flores
-(7, 1, '22103004', '9'), -- Daniel de Jesus Nogales Escalona
-(8, 1, '22103005', '9'), -- Jesus Alejandro Lara Castro
-(9, 1, '22103007', '9'); -- Claudio Carrera Hernandez
+(4, 8, '22103001', '9'), -- Joseph Emiliano Ruano Galvez
+(5, 8, '22103002', '9'), -- Alexis Emmanuel Fernandez Gonzalez
+(6, 8, '22103003', '9'), -- Pedro Pablo Mora Flores
+(7, 8, '22103004', '9'), -- Daniel de Jesus Nogales Escalona
+(8, 8, '22103005', '9'), -- Jesus Alejandro Lara Castro
+(9, 8, '22103007', '9'); -- Claudio Carrera Hernandez
 
 -- Datos para dbo_grupo
 -- Se necesitan idDocente y idMateria, por lo que crearemos un grupo de ejemplo.
