@@ -1,4 +1,33 @@
-# Pruebas e indicadores: guía de uso
+# Plan y guía de pruebas automatizadas
+
+Este documento define el plan de pruebas automatizadas y cómo ejecutarlas localmente y en CI.
+
+## Plan de pruebas automatizadas
+
+- Objetivos
+	- Detectar regresiones funcionales del backend de forma temprana (smoke e integración).
+	- Supervisar la disponibilidad del endpoint de salud en entornos desplegados.
+	- Medir rápidamente rendimiento básico (smoke) para detectar degradaciones evidentes.
+- Alcance inicial
+	- Backend Node/Express: endpoint de salud y rutas clave a medida que se vayan estabilizando.
+	- Frontend: se añadirán pruebas unitarias/RTL en siguientes iteraciones.
+- Pirámide de pruebas (mínimos viables)
+	- Unitarias: por definir (objetivo ≥ 60% del código de utilidades y validadores).
+	- Integración: smoke de servidor y endpoints críticos (ya incluido `/api/status`).
+	- E2E: fuera de alcance por ahora; considerar Playwright/Cypress más adelante.
+- Criterios de entrada/salida
+	- Entrada: dependencias instaladas, servidor arranca sin DB real (stub), o URL_DATABASE configurada.
+	- Salida: todos los suites integrados pasan; cobertura generada; smoke verde.
+- Métricas/targets
+	- Tiempo de ejecución smoke < 10s local/CI.
+	- Cobertura inicial informativa; objetivo progresivo ≥ 50% en backend src.
+- Integración continua
+	- Workflow `integration-tests` ejecuta `npm run test:integration` y publica cobertura lcov.
+- Datos y fixtures
+	- Para rutas con DB, usar dobles/mocks del pool o preparar datos con scripts SQL en contenedor de test.
+	- Evitar dependencias con datos productivos.
+
+> Nota: el módulo `backend/src/db/pool.js` tolera ausencia de `URL_DATABASE` y exporta un stub que falla si se usa; esto permite lanzar el servidor en pruebas que no ejercen la capa de datos.
 
 Este repo incluye:
 
@@ -29,14 +58,20 @@ popd
 npm install
 ```
 
-2) Ejecuta las pruebas SIN base de datos real (valor dummy válido)
+2) Validación rápida del entorno (versión y smoke)
+
+```powershell
+npm run qa:verify
+```
+
+3) Ejecuta las pruebas SIN base de datos real (valor dummy válido)
 
 ```powershell
 $env:URL_DATABASE = "mariadb://root:root@127.0.0.1:3306/testdb"
 npm run test:integration
 ```
 
-3) Ejecuta las pruebas CON MariaDB en Docker (opcional)
+4) Ejecuta las pruebas CON MariaDB en Docker (opcional)
 
 ```powershell
 # Levanta solo la DB de compose-test (root/root123, DB testdb)
@@ -47,7 +82,7 @@ $env:URL_DATABASE = "mariadb://root:root123@127.0.0.1:3306/testdb"
 npm run test:integration
 ```
 
-4) Si el puerto 5050 está ocupado
+5) Si el puerto 5050 está ocupado
 
 ```powershell
 $env:TEST_PORT = "5051"
@@ -55,7 +90,7 @@ $env:URL_DATABASE = "mariadb://root:root@127.0.0.1:3306/testdb"
 npm run test:integration
 ```
 
-5) Cobertura
+6) Cobertura
 
 - Se genera en `coverage/`.
 - Abre `coverage/lcov-report/index.html` en el navegador para ver el informe HTML.
@@ -98,3 +133,9 @@ k6 run --env K6_BASE_URL="http://tu-entorno" tests/performance/k6-smoke.js
 ```
 
 También puedes orquestarlo desde un workflow (si se configura uno, p. ej., `performance.yml`).
+
+## Próximos pasos sugeridos
+
+- Añadir pruebas unitarias para validadores y middlewares en `backend/src/validators` y `backend/src/middlewares` usando Jest y dobles del `req/res`.
+- Incorporar `supertest` para probar rutas que no requieren DB o con DB mockeada.
+- Definir un fixture de datos mínimos para pruebas de integración con MariaDB (scripts bajo `database/Poblado_inicial`).

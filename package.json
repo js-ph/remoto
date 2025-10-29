@@ -9,7 +9,11 @@
     "test": "tests"
   },
   "scripts": {
-    "test:integration": "jest --config jest.config.js",
+  "test:integration": "jest --config jest.config.js --runInBand",
+  "test:integration:ci": "jest --config jest.config.js --ci --runInBand",
+  "test:coverage": "jest --config jest.config.js --coverage --runInBand",
+  "qa:smoke": "jest --config jest.config.js --runInBand -t 'API health'",
+    "qa:verify": "node -v && npm -v && npm run test:integration --silent",
     "test": "npm run test:integration"
   },
   "devDependencies": {
