@@ -1,15 +1,17 @@
 const { spawn } = require('child_process');
 const waitOn = require('wait-on');
 const axios = require('axios');
+const path = require('path');
 
 let serverProcess;
 const TEST_PORT = process.env.TEST_PORT || 5050;
 const BASE_URL = `http://127.0.0.1:${TEST_PORT}`;
+const BACKEND_DIR = path.join(__dirname, '..', '..');
 
 beforeAll(async () => {
-  // Inicia el servidor con PORT de pruebas
+  // Inicia el servidor con PORT de pruebas desde la carpeta backend
   serverProcess = spawn(process.platform === 'win32' ? 'node.exe' : 'node', ['server.js'], {
-    cwd: `${__dirname}/../../../`,
+    cwd: BACKEND_DIR,
     env: { ...process.env, PORT: String(TEST_PORT) },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

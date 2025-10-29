@@ -1,0 +1,31 @@
+{
+  "name": "sise_lite_hybrid",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Workspace root para pruebas de integración y tooling",
+  "main": "jest.config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test:integration": "jest --config jest.config.js",
+    "test": "npm run test:integration"
+  },
+  "devDependencies": {
+    "axios": "^1.13.1",
+    "jest": "^30.2.0",
+    "wait-on": "^9.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XALEX14410/sise_lite_hybrid.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/XALEX14410/sise_lite_hybrid/issues"
+  },
+  "homepage": "https://github.com/XALEX14410/sise_lite_hybrid#readme"
+}

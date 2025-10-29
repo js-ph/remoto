@@ -1,0 +1,46 @@
+name: Integration tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root123
+          MARIADB_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot123"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install backend deps
+        run: npm install
+        working-directory: backend
+
+      - name: Install root dev deps
+        run: npm install
+
+      - name: Run integration tests
+        env:
+          URL_DATABASE: mariadb://root:root123@127.0.0.1:3306/testdb
+        run: npm run test:integration
