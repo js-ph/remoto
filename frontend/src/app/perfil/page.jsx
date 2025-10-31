@@ -120,6 +120,14 @@ export default function PerfilPage() {
               Panel de administración
             </button>
           )}
+          {(usuario.perfil === 'Administrador' || usuario.perfil === 'Superadmin') && (
+            <button
+              onClick={() => router.push("/materias")}
+              className="w-full p-2 bg-green-500 hover:bg-green-600 text-white rounded transition"
+            >
+              Materias
+            </button>
+          )}
 
           <button
             onClick={handleLogout}

@@ -156,7 +156,7 @@ router.delete('/eliminar/calificaciones/:id', verificarSesion, verificarPerfil([
 // ===============================
 // CARRERAS
 // ===============================
-router.get('/carreras', carreraController.obtenerCarreras);
+router.get('/carreras', verificarSesion, verificarPerfil(['Superadmin', 'Admin']), carreraController.obtenerCarreras);
 router.get('/carreras/:id', verificarSesion, verificarPerfil(['Superadmin', 'Admin']), validar(idParamSchema, 'params'), carreraController.obtenerCarreraPorId);
 router.post('/registrar-carreras', verificarSesion, verificarPerfil(['Superadmin']), validar(carreraSchema), carreraController.registrarCarrera);
 router.put('/actualizar-carreras/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), validar(carreraSchema), carreraController.actualizarCarrera);
@@ -165,8 +165,8 @@ router.delete('/eliminar-carreras/:id', verificarSesion, verificarPerfil(['Super
 // ===============================
 // MATERIAS
 // ===============================
-router.get('/materias', materiaController.obtenerMaterias);
-router.get('/materias/:id',  validar(idParamSchema, 'params'), materiaController.obtenerMateriaPorId);
+router.get('/materias', verificarSesion, verificarPerfil(['Superadmin', 'Admin']), materiaController.obtenerMaterias);
+router.get('/materias/:id',  verificarSesion, verificarPerfil(['Superadmin', 'Admin']), validar(idParamSchema, 'params'), materiaController.obtenerMateriaPorId);
 router.post('/registrar-materias', debugBody, validar(createMateriaSchema), materiaController.registrarMateria);
 router.put('/actualizar-materias/:id', debugBody, validar(idParamSchema, 'params'), validar(updateMateriaSchema), materiaController.actualizarMateria);
 router.delete('/eliminar-materias/:id', debugBody, validar(idParamSchema, 'params'), materiaController.eliminarMateria);

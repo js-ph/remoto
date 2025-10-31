@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import TablaMaterias from "./components/TablaMaterias";
 import FormMateria from "./components/MateriasForm";
 
@@ -8,6 +9,8 @@ const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
 export default function PageMaterias() {
     const [materias, setMaterias] = useState([]);
     const [carreras, setCarreras] = useState([]); 
+      const router = useRouter();
+
     const [materiaEditando, setMateriaEditando] = useState(null);
 
     const obtenerMaterias = async () => {
@@ -75,7 +78,15 @@ export default function PageMaterias() {
     };
 
     return (
+    
         <div className="p-6 flex flex-col items-center">
+          <button
+            onClick={() => router.push("/perfil")}
+            className="w-full p-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition"
+          >
+            ← Regresar al perfil
+          </button>
+
             <FormMateria 
                 materiaEditando={materiaEditando} 
                 onSubmit={handleSubmit} 
