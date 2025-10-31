@@ -23,14 +23,26 @@ if (-not $root) {
 Set-Location $root
 Write-Info "Repo: $root"
 
-# 3) Verificar si hay cambios
+# 3) Actualizar desde remoto si hay upstream
+$branch = (git rev-parse --abbrev-ref HEAD).Trim()
+$null = git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null
+if ($LASTEXITCODE -eq 0) {
+    Write-Info "Actualizando rama '$branch' (git pull --rebase)..."
+    git pull --rebase --autostash 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        # Fallback sin --autostash por compatibilidad
+        git pull --rebase
+    }
+}
+
+# 4) Verificar si hay cambios
 $status = git status --porcelain
 if ([string]::IsNullOrWhiteSpace($status)) {
     Write-Warn "No hay cambios por commitear."
     exit 0
 }
 
-# 4) Pedir solo el mensaje del commit (si no se pasa por parámetro)
+# 5) Pedir solo el mensaje del commit (si no se pasa por parámetro)
 if (-not $Message) {
     $Message = Read-Host "Mensaje del commit"
 }
@@ -39,7 +51,7 @@ if ([string]::IsNullOrWhiteSpace($Message)) {
     exit 1
 }
 
-# 5) add + commit
+# 6) add + commit
 Write-Info "Agregando cambios..."
 git add -A | Out-Null
 
@@ -51,8 +63,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Success "Commit creado."
 
-# 6) Intentar push si hay upstream configurado
-$branch = (git rev-parse --abbrev-ref HEAD).Trim()
+# 7) Intentar push si hay upstream configurado
 $null = git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null
 if ($LASTEXITCODE -eq 0) {
     Write-Info "Haciendo push a la rama '$branch'..."

@@ -14,6 +14,16 @@ fi
 cd "$ROOT"
 echo "Repo: $ROOT"
 
+# Actualizar desde remoto si hay upstream
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
+  echo "Actualizando rama '$BRANCH' (git pull --rebase)..."
+  if ! git pull --rebase --autostash >/dev/null 2>&1; then
+    # Fallback sin --autostash por compatibilidad
+    git pull --rebase
+  fi
+fi
+
 if [ -z "$(git status --porcelain)" ]; then
   echo "No hay cambios por commitear."
   exit 0
