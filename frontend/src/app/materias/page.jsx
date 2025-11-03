@@ -14,13 +14,13 @@ export default function PageMaterias() {
     const [materiaEditando, setMateriaEditando] = useState(null);
 
     const obtenerMaterias = async () => {
-        const res = await fetch(`${BACK_URL}/admin/materias`);
-        const data = await res.json();
-        setMaterias(data.materias || []);
+    const res = await fetch(`${BACK_URL}/admin/materias`, { credentials: 'include' }); 
+    const data = await res.json();
+    setMaterias(data.materias || []);
     };
-    
+
     const obtenerCarreras = async () => {
-        const res = await fetch(`${BACK_URL}/admin/carreras`); 
+        const res = await fetch(`${BACK_URL}/admin/carreras`, { credentials: 'include' }); 
         const data = await res.json();
         setCarreras(data.carreras || []);
     };
@@ -32,7 +32,7 @@ export default function PageMaterias() {
 
     const eliminarRegistro = async (id) => {
         if (!confirm("¿Seguro que deseas eliminar esta materia?")) return;
-        await fetch(`${BACK_URL}/admin/eliminar-materias/${id}`, { method: "DELETE" });
+        await fetch(`${BACK_URL}/admin/eliminar-materias/${id}`, { method: "DELETE", credentials: 'include'});
         obtenerMaterias();
     };
 
@@ -48,6 +48,7 @@ export default function PageMaterias() {
             };
 
             await fetch(`${BACK_URL}/admin/actualizar-materias/${materiaEditando.idMateria}`, {
+                credentials: "include",
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(datosAEnviar),
@@ -67,6 +68,7 @@ export default function PageMaterias() {
             }
 
             await fetch(`${BACK_URL}/admin/registrar-materias`, {
+                credentials: "include",
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(datosAEnviar),
