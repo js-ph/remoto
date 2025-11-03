@@ -134,6 +134,48 @@ k6 run --env K6_BASE_URL="http://tu-entorno" tests/performance/k6-smoke.js
 
 También puedes orquestarlo desde un workflow (si se configura uno, p. ej., `performance.yml`).
 
+## Script Bash para QA (automatizado)
+
+Para entornos Bash (Git Bash en Windows, WSL, Linux, macOS):
+
+```bash
+# Ejecución básica (sin DB real)
+bash ./scripts/test-integration.sh
+
+# Con MariaDB en Docker (usa compose-test)
+bash ./scripts/test-integration.sh --with-docker
+
+# Personalizar puerto y DSN
+bash ./scripts/test-integration.sh --test-port 5051 --database-url "mariadb://user:pass@host:3306/db"
+```
+
+Alias npm (requiere tener bash disponible):
+
+```bash
+npm run test:integration:sh
+```
+
+El script:
+- Instala dependencias en `backend/` y en la raíz (si faltan)
+- (Opcional) levanta MariaDB con `compose-test/docker-compose.yml`
+- Exporta `URL_DATABASE` y `TEST_PORT`
+- Ejecuta `npm run test:integration` y devuelve el código de salida
+
+## Script PowerShell para QA (automatizado)
+
+En Windows PowerShell:
+
+```powershell
+# Ejecución básica (sin DB real)
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-integration.ps1
+
+# Con MariaDB en Docker (usa compose-test)
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-integration.ps1 -WithDocker
+
+# Personalizar puerto y DSN
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-integration.ps1 -TestPort 5051 -DatabaseUrl "mariadb://user:pass@host:3306/db"
+```
+
 ## Próximos pasos sugeridos
 
 - Añadir pruebas unitarias para validadores y middlewares en `backend/src/validators` y `backend/src/middlewares` usando Jest y dobles del `req/res`.

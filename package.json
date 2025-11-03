@@ -14,12 +14,19 @@
   "test:coverage": "jest --config jest.config.js --coverage --runInBand",
   "qa:smoke": "jest --config jest.config.js --runInBand -t 'API health'",
     "qa:verify": "node -v && npm -v && npm run test:integration --silent",
-    "test": "npm run test:integration"
+     "test": "npm run test:integration",
+    "test:integration:ps": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/test-integration.ps1",
+    "test:integration:sh": "bash ./scripts/test-integration.sh",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed --retries=0",
+    "e2e:report": "playwright show-report",
+    "e2e:install": "playwright install"
   },
   "devDependencies": {
     "axios": "^1.13.1",
     "jest": "^30.2.0",
-    "wait-on": "^9.0.1"
+    "wait-on": "^9.0.1",
+    "@playwright/test": "^1.48.2"
   },
   "repository": {
     "type": "git",

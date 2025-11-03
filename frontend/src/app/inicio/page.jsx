@@ -1,49 +1,87 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
+const API_URL =
+  process.env.NEXT_PUBLIC_BACK_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://127.0.0.1:4000';
 
 export default function InicioPage() {
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchInicio = async () => {
+  const fetchInicio = useCallback(async () => {
+    try {
+      setError('');
+      const res = await fetch(`${API_URL}/inicio`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      let data;
       try {
-        const res = await fetch(`${BACK_URL}/inicio`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.mensaje || 'Error al obtener datos');
-
-        console.log('Respuesta del backend:', data); // 👈 para depurar
-        setDatos(data);
-      } catch (err) {
-        console.error('Error en fetchInicio:', err);
-        setError(err.message);
+        data = await res.json();
+      } catch (_) {
+        // Si no hay JSON válido, forzamos un objeto vacío para evitar romper el flujo
+        data = {};
       }
-    };
 
-    fetchInicio();
+      if (!res.ok) {
+        const apiMsg = data?.mensaje || data?.error;
+        throw new Error(apiMsg || 'No pudimos cargar la información. Intenta de nuevo.');
+      }
+
+      console.log('Respuesta del backend:', data); // 👈 para depurar
+      setDatos(data);
+    } catch (err) {
+      console.error('Error en fetchInicio:', err);
+      const msg = String(err?.message || err);
+      // Mensajes más amables según el tipo de fallo
+      if (/failed to fetch|network|fetch/i.test(msg)) {
+        setError('No se pudo conectar con el servidor. Verifica que el backend esté en ejecución.');
+      } else if (/timeout|tiempo de espera/i.test(msg)) {
+        setError('La solicitud tardó demasiado. Intenta nuevamente.');
+      } else if (/403|401/.test(msg)) {
+        setError('Tu sesión no es válida o expiró. Inicia sesión de nuevo.');
+      } else {
+        setError('No pudimos cargar la información. Intenta de nuevo.');
+      }
+      // En desarrollo, muestra el detalle debajo para depurar
+      if (process.env.NODE_ENV !== 'production') {
+        setDatos({ detalleError: msg });
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    fetchInicio();
+  }, [fetchInicio]);
 
   if (error)
     return (
       <main className="flex h-screen items-center justify-center bg-gray-100">
         <div className="p-6 bg-white shadow-lg rounded-2xl text-center">
           <h1 className="text-2xl font-bold text-red-500">{error}</h1>
-          <button
-            onClick={() => router.push('/')}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Volver al inicio
-          </button>
+          {datos?.detalleError && (
+            <p className="mt-2 text-xs text-gray-500 break-all">Detalle: {datos.detalleError}</p>
+          )}
+          <div className="mt-4 flex gap-2 justify-center">
+            <button
+              onClick={() => fetchInicio()}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Reintentar
+            </button>
+            <button
+              onClick={() => router.push('/')}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-4 py-2 rounded"
+            >
+              Volver al inicio
+            </button>
+          </div>
         </div>
       </main>
     );
