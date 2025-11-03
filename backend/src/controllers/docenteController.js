@@ -23,48 +23,82 @@ exports.obtenerDocentePorId = async (req, res) => {
 };
 
 exports.registrarDocente = async (req, res) => {
-  const {
-    nombre, apellido_paterno, apellido_materno, fecha_de_nacimiento,
-    sexo, curp, idEstado, idMunicipio,
-    usuario, contrasena, correo_electronico
-  } = req.body;
+    const idUsuarioCreador = req.session.usuario?.idUsuario; 
+    const datosDocente = req.body; 
 
-  try {
-    const result = await Docente.create({
-      nombre, apellido_paterno, apellido_materno, fecha_de_nacimiento,
-      sexo, curp, idEstado, idMunicipio,
-      usuario, contrasena, correo_electronico
-    });
-    res.status(201).json({ mensaje: 'Docente creado correctamente', docente: result });
-  } catch (err) {
-    console.error('Error al crear docente:', err);
-    res.status(500).json({ error: 'Error al insertar docente', detalle: err.message });
-  }
+    try {
+        const result = await Docente.create(datosDocente, idUsuarioCreador); 
+        res.status(201).json({ mensaje: 'Docente creado correctamente', docente: result });
+    } catch (err) {
+        console.error('Error al crear docente:', err);
+        res.status(500).json({ error: 'Error al insertar docente', detalle: err.message });
+    }
 };
 
 exports.actualizarDocente = async (req, res) => {
-  const id = req.params.id;
-  console.log('[REGISTRAR] Datos del nuevo alumno recibidos:', req.body);
-  try {
-    const updated = await Docente.update(id, req.body);
-    if (!updated) return res.status(404).json({ error: 'Docente no encontrado' });
-    res.json({ mensaje: 'Docente actualizado correctamente' });
-  } catch (err) {
-    console.error('Error al actualizar docente:', err);
-    res.status(500).json({ error: 'Error al actualizar docente', detalle: err.message });
-  }
+    const id = req.params.id;
+    const idUsuarioModificador = req.session.usuario?.idUsuario; 
+    // console.log('[REGISTRAR] Datos del nuevo alumno recibidos:', req.body); // Ojo con este log, parece copiado de otro lado
+
+    try {
+        const updated = await Docente.update(id, req.body, idUsuarioModificador);
+        if (!updated) return res.status(404).json({ error: 'Docente no encontrado' });
+        res.json({ mensaje: 'Docente actualizado correctamente' });
+    } catch (err) {
+        console.error('Error al actualizar docente:', err);
+        res.status(500).json({ error: 'Error al actualizar docente', detalle: err.message });
+    }
 };
 
-exports.eliminarDocente = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const deleted = await Docente.remove(id);
-    if (!deleted) return res.status(404).json({ error: 'Docente no encontrado' });
-    res.json({ mensaje: 'Docente eliminado correctamente' });
-  } catch (err) {
-    console.error('Error al eliminar docente:', err);
-    res.status(500).json({ error: 'Error al eliminar docente', detalle: err.message });
-  }
+exports.eliminarDocentePermanente = async (req, res) => {
+    const id = req.params.id;
+    const idUsuarioEliminador = req.session.usuario?.idUsuario; 
+    try {
+        const deleted = await Docente.remove(id, idUsuarioEliminador);
+        if (!deleted) return res.status(404).json({ error: 'Docente no encontrado' });
+        res.json({ mensaje: 'Docente eliminado permanentemente' });
+    } catch (err) {
+        console.error('Error al eliminar docente:', err);
+        if (err.message.includes('grupos asignados')) {
+            return res.status(409).json({ error: err.message }); 
+        }
+        res.status(500).json({ error: 'Error al eliminar docente permanentemente', detalle: err.message });
+    }
+};
+
+exports.desactivarDocente = async (req, res) => {
+    const id = req.params.id;
+    const idUsuarioEliminador = req.session.usuario?.idUsuario; 
+    try {
+        const deleted = await Docente.softDelete(id, idUsuarioEliminador);
+        if (!deleted) return res.status(404).json({ error: 'Docente no encontrado' });
+        res.json({ mensaje: 'Docente desactivado correctamente' });
+    } catch (err) {
+        console.error('Error al desactivar docente:', err);
+        res.status(500).json({ error: 'Error al desactivar docente', detalle: err.message });
+    }
+};
+
+exports.obtenerEstadisticasDocente = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const estadisticas = await Docente.getEstadisticas(id);
+
+        if (!estadisticas) {
+            const docenteExistente = await Docente.getById(id);
+            if (!docenteExistente) return res.status(404).json({ error: 'Docente no encontrado' });
+            return res.json({ mensaje: 'Docente encontrado, pero sin estadísticas aún', estadisticas: {} }); 
+        }
+
+        res.json({ estadisticas });
+    } catch (err) {
+        console.error('Error al obtener estadísticas del docente:', err);
+        res.status(500).json({
+            mensaje: 'Error al obtener estadísticas del docente',
+            detalle: err.message,
+        });
+    }
 };
 
 exports.obtenerGruposDocente = async (req, res) => {

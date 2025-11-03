@@ -105,21 +105,54 @@ exports.obtenerHorarioporAlumno = async (req, res) => {
 };
 
 exports.obtenerGrupoporAlumno = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;
 
-  try {
-    const grupo = await Alumno.getGrupo(id);
+  try {
+    const grupos = await Alumno.getGrupos(id); 
 
-    if (grupo.length === 0) {
-      return res.status(404).json({ mensaje: 'No hay grupos disponibles' });
+    if (grupos.length === 0) {
+      return res.status(404).json({ mensaje: 'No hay grupos disponibles para este alumno' });
+    }
+
+    res.json({ grupos }); 
+  } catch (error) {
+    console.error('Error al obtener grupos del alumno:', error);
+    res.status(500).json({
+      mensaje: 'Error al obtener grupos del alumno',
+      detalle: error.message,
+    });
+  }
+};
+
+
+exports.desactivarAlumno = async (req, res) => {
+    const id = req.params.id;
+    const idUsuarioEliminador = req.usuario ? req.usuario.id : null; 
+    try {
+        const deleted = await Alumno.softDelete(id, idUsuarioEliminador);
+        if (!deleted) return res.status(404).json({ error: 'Alumno no encontrado o ya desactivado' });
+        res.json({ mensaje: 'Alumno desactivado correctamente' });
+    } catch (err) {
+        if (err.message.includes('no encontrado')) {
+            return res.status(404).json({ error: err.message });
+        }
+        console.error('Error al desactivar alumno:', err);
+        res.status(500).json({ error: 'Error al desactivar alumno', detalle: err.message });
     }
+};
 
-    res.json({ grupo });
-  } catch (error) {
-    console.error('Error al obtener grupos del alumno:', error);
-    res.status(500).json({
-      mensaje: 'Error al obtener grupos del alumno',
-      detalle: error.message,
-    });
-  }
+exports.avanzarSemestreAlumno = async (req, res) => {
+    const id = req.params.id;
+    const idUsuarioModificador = req.usuario ? req.usuario.id : null; 
+    try {
+        const advanced = await Alumno.avanzarSemestre(id, idUsuarioModificador);
+        if (!advanced) return res.status(404).json({ error: 'Alumno no encontrado o no se pudo avanzar el semestre' });
+        res.json({ mensaje: 'El alumno ha avanzado de semestre correctamente' });
+    } catch (err) {
+        if (err.message.includes('no encontrado')) {
+            return res.status(404).json({ error: err.message });
+        }
+        console.error('Error al avanzar semestre del alumno:', err);
+        res.status(500).json({ error: 'Error al avanzar semestre del alumno', detalle: err.message });
+    }
 };
