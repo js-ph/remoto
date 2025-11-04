@@ -14,10 +14,21 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
+    // 🔍 Validaciones antes de enviar al backend
+    if (!/^[0-9]{8}$/.test(usuario)) {
+      setError('El usuario debe tener exactamente 8 dígitos numéricos.');
+      return;
+    }
+
+    if (!/^[0-9]{4}$/.test(contrasena)) {
+      setError('La contraseña debe tener exactamente 4 dígitos numéricos.');
+      return;
+    }
+
     try {
       const res = await fetch(`${BACK_URL}/auth/login`, {
         method: 'POST',
-        credentials: 'include', // 🔑 envía la cookie de sesión
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -31,7 +42,7 @@ export default function LoginPage() {
         return;
       }
 
-      console.log('Login exitoso:', data);
+      console.log('✅ Login exitoso:', data);
       router.push('/inicio');
     } catch (err) {
       console.error(err);
@@ -62,13 +73,15 @@ export default function LoginPage() {
                 <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Usuario</span>
                 <input
                   type="text"
-                  placeholder="usuario@institucion.mx"
+                  placeholder="8 dígitos numéricos"
                   value={usuario}
                   onChange={(e) => setUsuario(e.target.value)}
                   required
                   className="mt-2 w-full rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-gray-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition"
                   aria-label="Usuario"
                   autoComplete="username"
+                  inputMode="numeric"
+                  maxLength={8}
                 />
               </label>
 
@@ -76,13 +89,15 @@ export default function LoginPage() {
                 <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Contraseña</span>
                 <input
                   type="password"
-                  placeholder="Contraseña"
+                  placeholder="4 dígitos"
                   value={contrasena}
                   onChange={(e) => setContrasena(e.target.value)}
                   required
                   className="mt-2 w-full rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-gray-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition"
                   aria-label="Contraseña"
                   autoComplete="current-password"
+                  maxLength={4}
+                  inputMode="numeric"
                 />
               </label>
 
