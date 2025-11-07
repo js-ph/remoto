@@ -20,6 +20,7 @@ const municipiosRoutes = require('./src/routes/municipiosRoutes');
 const estadosRoutes = require('./src/routes/estadosRoutes');
 const inicioRouter = require('./src/routes/inicioRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
+const documentoRoutes = require('./src/routes/documentoRoutes');
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -44,6 +45,7 @@ app.use('/municipios', municipiosRoutes);
 app.use('/estados', estadosRoutes);
 app.use('/inicio', inicioRouter);
 app.use('/inicio', inicioRouter);
+app.use('/documentos', documentoRoutes)
 
 app.get('/api/status', (req, res) => {
   res.json({ message: 'Backend funcionando' });

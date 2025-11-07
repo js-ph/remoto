@@ -5,7 +5,6 @@ const saltRounds = 10;
 exports.login = async (req, res) => {
     const { usuario, contrasena } = req.body;
     
-    // *** 1. LOG DE ENTRADA ***
     console.log(`[LOGIN] Intento de login para usuario: ${usuario}`);
     
     try {
@@ -25,50 +24,37 @@ exports.login = async (req, res) => {
         let accesoConcedido = false;
         let hashActualizado = false;
         
-        // *** 2. LOG DE ESTADO DE CONTRASEÑA ***
         const esHash = contrasena_guardada.startsWith('$2') && contrasena_guardada.length > 50;
         console.log(`[VERIFICACIÓN] ¿Contraseña Guardada es Hash?: ${esHash}`);
 
 
         if (esHash) {
-            // --- A. PROCESO ESTÁNDAR: Verificar Hash ---
             accesoConcedido = await bcrypt.compare(contrasena, contrasena_guardada);
-            // *** 3A. LOG DE VERIFICACIÓN HASH ***
             console.log(`[VERIFICACIÓN HASH] Resultado de bcrypt.compare: ${accesoConcedido}`);
 
         } else {
-            // --- B. PROCESO DE MIGRACIÓN: Texto Plano ---
-            // Asegúrate de que no haya espacios en blanco en la DB.
             const contrasenaDB_trimmed = contrasena_guardada.trim(); 
             
-            if (contrasena === contrasenaDB_trimmed) { // Usamos .trim() por si hay espacios
+            if (contrasena === contrasenaDB_trimmed) { 
                 accesoConcedido = true;
                 
-                // Hashear la contraseña y actualizar la DB (MIGRACIÓN)
                 const nuevoHash = await bcrypt.hash(contrasena, saltRounds);
                 await AuthModel.updatePasswordHash(user.idUsuario, nuevoHash); 
                 
                 hashActualizado = true;
-                // *** 3B. LOG DE MIGRACIÓN ***
                 console.log(`[MIGRACIÓN EXITOSA] Contraseña de texto plano actualizada a hash.`);
 
             } else {
-                 // *** 3B. LOG DE FALLO DE TEXTO PLANO ***
                  console.log(`[MIGRACIÓN FALLIDA] Contraseña ingresada NO coincide con texto plano en DB.`);
-                 // console.log(`Contraseña Ingresada: '${contrasena}' | Contraseña DB: '${contrasenaDB_trimmed}'`); // Quitar en producción!
             }
         }
 
         if (!accesoConcedido) {
-            // *** 4. LOG DE FALLO GENERAL ***
             console.log(`[LOGIN FALLIDO] Acceso no concedido (Contraseña incorrecta).`);
             return res.status(401).json({ error: 'Credenciales inválidas' });
         }
         
-        // *** 5. LOG DE ÉXITO ***
         console.log(`[LOGIN EXITOSO] Acceso concedido. Hash actualizado: ${hashActualizado}`);
-        
-        // ... (El resto de la lógica de sesión sigue aquí) ...
         
         let idEntidad = null;
         if (user.perfil === 'Docente') idEntidad = await AuthModel.getDocenteByUserId(user.idUsuario);

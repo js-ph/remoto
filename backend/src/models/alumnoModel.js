@@ -68,13 +68,13 @@ const generarMatricula = async (idCarrera) => {
     secuencia = ultimaSecuencia + 1;
   }
   
-  return `${prefix}-${String(secuencia).padStart(4, '0')}`;
+  return `${prefix}${String(secuencia).padStart(4, '0')}`;
 };
 
 const create = async ({
   nombre, apellido_paterno, apellido_materno, fecha_de_nacimiento,
   sexo, curp, idEstado, idMunicipio,
-  usuario, contrasena, correo_electronico, idCarrera, semestre_actual = 1
+  contrasena, correo_electronico, idCarrera, semestre_actual = 1
 }, idUsuarioCreador = null) => {
   const idPerfil = 4;
   const nuevoUsuario = 1;
@@ -84,7 +84,8 @@ const create = async ({
     conn = await pool.getConnection();
     await conn.beginTransaction();
 
-    const matricula = await generarMatricula(idCarrera);
+    const matricula = await generarMatricula(idCarrera); 
+    const usuario = matricula;
 
     const hashedPassword = await bcrypt.hash(contrasena, SALT_ROUNDS);
 
@@ -128,6 +129,7 @@ const create = async ({
 
   } catch (err) {
     if (conn) await conn.rollback();
+    console.error("Error en la creación del alumno:", err);
     throw err; 
   } finally {
     if (conn) conn.release();

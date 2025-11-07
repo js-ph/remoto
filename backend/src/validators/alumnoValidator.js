@@ -79,7 +79,7 @@ const alumnoSchema = Joi.object({
       'any.required': 'El idMunicipio es obligatorio'
     }),
 
-  usuario: Joi.string() 
+  /*usuario: Joi.string() 
       .required()
       .min(8) 
       .max(8) 
@@ -91,7 +91,7 @@ const alumnoSchema = Joi.object({
           'string.max': 'El usuario debe tener exactamente 8 dígitos',
           'string.pattern.base': 'El usuario solo debe contener números', 
           'any.required': 'El campo usuario es obligatorio'
-      }),
+      }),*/
 
   contrasena: Joi.string()
     .required()

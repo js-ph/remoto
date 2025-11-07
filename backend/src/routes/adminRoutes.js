@@ -94,9 +94,9 @@ router.post('/registrar-alumno',
     verificarPerfil(['Superadmin']), 
     debugBody, 
     validar(alumnoSchema), 
-    validarUsuarioUnico, 
     alumnoController.registrarAlumno
-);router.put('/actualizar-alumno/:id', verificarSesion, verificarPerfil(['Superadmin']), debugBody, validar(idParamSchema, 'params'), validar(alumnoSchema), alumnoController.actualizarAlumno);
+);
+router.put('/actualizar-alumno/:id', verificarSesion, verificarPerfil(['Superadmin']), debugBody, validar(idParamSchema, 'params'), validar(alumnoSchema), alumnoController.actualizarAlumno);
 router.delete('/eliminar-alumno/:id', verificarSesion, verificarPerfil(['Superadmin']), validar(idParamSchema, 'params'), alumnoController.eliminarAlumno);
 
 // ===============================
