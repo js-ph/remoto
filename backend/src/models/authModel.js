@@ -17,17 +17,18 @@ const recordLogout = async (idUsuario) => {
 };
 
 const findUserByUsername = async (usuario) => {
-    const rows = await pool.query( 
-        `SELECT u.idUsuario, u.usuario, u.contrasena, u.status, u.nuevoUsuario,
-                lp.idPerfil, lp.nombre AS perfil
-         FROM dbo_usuario u
-         LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
-         LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
-         WHERE u.usuario = $1`,
-        [usuario]
-    );
-    return rows[0] || null;
+  const { rows } = await pool.query( 
+    `SELECT u.idUsuario, u.usuario, u.contrasena, u.status, u.nuevoUsuario,
+            lp.idPerfil, lp.nombre AS perfil
+     FROM dbo_usuario u
+     LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
+     LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
+     WHERE u.usuario = $1`,
+    [usuario]
+  );
+  return rows[0] || null;
 };
+
 
 const updatePasswordHash = async (idUsuario, nuevoHash) => {
     await pool.query(
