@@ -38,7 +38,7 @@ const updatePasswordHash = async (idUsuario, nuevoHash) => {
 };
 
 const cambiarContrasena = async (idUsuario, contrasenaActual, contrasenaNueva) => {
-    const rows = await pool.query(
+    const {rows} = await pool.query(
         `SELECT contrasena FROM dbo_usuario WHERE idUsuario = $1`,
         [idUsuario]
     );
@@ -87,27 +87,27 @@ const restablecerContrasena = async (idUsuario, nuevaContrasena, idAdministrador
 };
 
 const getDocenteByUserId = async (idUsuario) => {
-  const rows = await pool.query('SELECT idDocente FROM dbo_docente WHERE idUsuario = $1', [idUsuario]);
+  const {rows} = await pool.query('SELECT idDocente FROM dbo_docente WHERE idUsuario = $1', [idUsuario]);
   return rows[0]?.idDocente || null;
 };
 
 const getAlumnoByUserId = async (idUsuario) => {
-  const rows = await pool.query('SELECT idAlumno FROM dbo_alumno WHERE idUsuario = $1', [idUsuario]);
+  const {rows} = await pool.query('SELECT idAlumno FROM dbo_alumno WHERE idUsuario = $1', [idUsuario]);
   return rows[0]?.idAlumno || null;
 };
 
 const getRoles = async () => {
-  const rows = await pool.query('SELECT idPerfil, nombre, descripcion FROM dbo_login_perfil');
+  const {rows} = await pool.query('SELECT idPerfil, nombre, descripcion FROM dbo_login_perfil');
   return rows;
 };
 
 const getRoleById = async (idPerfil) => {
-  const rows = await pool.query('SELECT nombre, descripcion FROM dbo_login_perfil WHERE idPerfil = $1', [idPerfil]);
+  const {rows} = await pool.query('SELECT nombre, descripcion FROM dbo_login_perfil WHERE idPerfil = $1', [idPerfil]);
   return rows[0];
 };
 
 const getDatosPersonales = async (idUsuario) => {
-  const rows = await pool.query(
+  const {rows} = await pool.query(
     `SELECT u.idUsuario, u.nuevoUsuario, u.status,
             p.nombre, p.apellido_paterno, p.apellido_materno, 
             u.usuario, u.correo_electronico, 
@@ -132,7 +132,7 @@ const getDatosPersonales = async (idUsuario) => {
  * Verifica si es el primer login del usuario
  */
 const esNuevoUsuario = async (idUsuario) => {
-  const rows = await pool.query(
+  const {rows} = await pool.query(
     `SELECT nuevoUsuario FROM dbo_usuario WHERE idUsuario = $1`,
     [idUsuario]
   );
@@ -153,7 +153,7 @@ const marcarComoUsuarioExperimentado = async (idUsuario) => {
  * Obtiene estadísticas de usuarios
  */
 const getEstadisticasUsuarios = async () => {
-  const rows = await pool.query(
+  const {rows} = await pool.query(
     `SELECT 
         lp.nombre AS perfil,
         COUNT(DISTINCT u.idUsuario) AS total,

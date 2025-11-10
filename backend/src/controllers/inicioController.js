@@ -11,7 +11,7 @@ exports.obtenerInicio = async (req, res) => {
        INNER JOIN dbo_persona p ON u.idPersona = p.idPersona
        LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
        LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
-       WHERE u.idUsuario = ?`,
+       WHERE u.idUsuario = $1`,
       [usuario.idUsuario]
     );
 
