@@ -60,9 +60,13 @@ exports.login = async (req, res) => {
         if (user.perfil === 'Docente') idEntidad = await AuthModel.getDocenteByUserId(user.idUsuario);
         if (user.perfil === 'Alumno') idEntidad = await AuthModel.getAlumnoByUserId(user.idUsuario);
 
-        req.session.usuario = { idUsuario: user.idUsuario, idEntidad, usuario: user.usuario, perfil: user.perfil };
-
-        await AuthModel.recordLogin(user.idUsuario); 
+        req.session.usuario = { 
+        idUsuario: user.idUsuario || user.idusuario,  
+        idEntidad,
+        usuario: user.usuario,
+        perfil: user.perfil
+        };
+        await AuthModel.recordLogin(user.idUsuario || user.idusuario);
         
         let mensaje = 'Login exitoso';
         if (hashActualizado) {
