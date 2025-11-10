@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const recordLogin = async (idUsuario) => {
   await pool.query(
-    `UPDATE dbo_usuario SET ultimo_login = NOW() WHERE idUsuario = ?`,
+    `UPDATE dbo_usuario SET ultimo_login = NOW() WHERE idUsuario = $1`,
     [idUsuario]
   );
   
@@ -23,7 +23,7 @@ const findUserByUsername = async (usuario) => {
          FROM dbo_usuario u
          LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
          LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
-         WHERE u.usuario = ?`,
+         WHERE u.usuario = $1`,
         [usuario]
     );
     return rows[0] || null;
@@ -31,14 +31,14 @@ const findUserByUsername = async (usuario) => {
 
 const updatePasswordHash = async (idUsuario, nuevoHash) => {
     await pool.query(
-        `UPDATE dbo_usuario SET contrasena = ? WHERE idUsuario = ?`,
+        `UPDATE dbo_usuario SET contrasena = $1 WHERE idUsuario = $2`,
         [nuevoHash, idUsuario]
     );
 };
 
 const cambiarContrasena = async (idUsuario, contrasenaActual, contrasenaNueva) => {
     const rows = await pool.query(
-        `SELECT contrasena FROM dbo_usuario WHERE idUsuario = ?`,
+        `SELECT contrasena FROM dbo_usuario WHERE idUsuario = $1`,
         [idUsuario]
     );
 
@@ -57,7 +57,7 @@ const cambiarContrasena = async (idUsuario, contrasenaActual, contrasenaNueva) =
     const hashedPassword = await bcrypt.hash(contrasenaNueva, 10);
 
     await pool.query(
-        `UPDATE dbo_usuario SET contrasena = ? WHERE idUsuario = ?`,
+        `UPDATE dbo_usuario SET contrasena = $1 WHERE idUsuario = $2`,
         [hashedPassword, idUsuario]
     );
 
@@ -70,7 +70,7 @@ const restablecerContrasena = async (idUsuario, nuevaContrasena, idAdministrador
   const hashedPassword = await bcrypt.hash(nuevaContrasena, 10);
   
   await pool.query(
-    `UPDATE dbo_usuario SET contrasena = ?, nuevoUsuario = 1 WHERE idUsuario = ?`,
+    `UPDATE dbo_usuario SET contrasena = $1, nuevoUsuario = 1 WHERE idUsuario = $2`,
     [hashedPassword, idUsuario]
   );
   
@@ -86,12 +86,12 @@ const restablecerContrasena = async (idUsuario, nuevaContrasena, idAdministrador
 };
 
 const getDocenteByUserId = async (idUsuario) => {
-  const rows = await pool.query('SELECT idDocente FROM dbo_docente WHERE idUsuario = ?', [idUsuario]);
+  const rows = await pool.query('SELECT idDocente FROM dbo_docente WHERE idUsuario = $1', [idUsuario]);
   return rows[0]?.idDocente || null;
 };
 
 const getAlumnoByUserId = async (idUsuario) => {
-  const rows = await pool.query('SELECT idAlumno FROM dbo_alumno WHERE idUsuario = ?', [idUsuario]);
+  const rows = await pool.query('SELECT idAlumno FROM dbo_alumno WHERE idUsuario = $1', [idUsuario]);
   return rows[0]?.idAlumno || null;
 };
 
@@ -101,7 +101,7 @@ const getRoles = async () => {
 };
 
 const getRoleById = async (idPerfil) => {
-  const rows = await pool.query('SELECT nombre, descripcion FROM dbo_login_perfil WHERE idPerfil = ?', [idPerfil]);
+  const rows = await pool.query('SELECT nombre, descripcion FROM dbo_login_perfil WHERE idPerfil = $1', [idPerfil]);
   return rows[0];
 };
 
@@ -121,7 +121,7 @@ const getDatosPersonales = async (idUsuario) => {
      INNER JOIN dbo_estados e ON p.idEstado = e.idEstado
      INNER JOIN dbo_municipios m ON p.idMunicipio = m.idMunicipio
      LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
-     WHERE u.idUsuario = ?`,
+     WHERE u.idUsuario = $1`,
     [idUsuario]
   );
   return rows[0];
@@ -132,7 +132,7 @@ const getDatosPersonales = async (idUsuario) => {
  */
 const esNuevoUsuario = async (idUsuario) => {
   const rows = await pool.query(
-    `SELECT nuevoUsuario FROM dbo_usuario WHERE idUsuario = ?`,
+    `SELECT nuevoUsuario FROM dbo_usuario WHERE idUsuario = $1`,
     [idUsuario]
   );
   return rows[0]?.nuevoUsuario === 1;
@@ -143,7 +143,7 @@ const esNuevoUsuario = async (idUsuario) => {
  */
 const marcarComoUsuarioExperimentado = async (idUsuario) => {
   await pool.query(
-    `UPDATE dbo_usuario SET nuevoUsuario = 0 WHERE idUsuario = ?`,
+    `UPDATE dbo_usuario SET nuevoUsuario = 0 WHERE idUsuario = $1`,
     [idUsuario]
   );
 };
