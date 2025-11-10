@@ -27,7 +27,6 @@ exports.obtenerInicio = async (req, res) => {
     let datosGenerales = null;
 
     if (idPerfil === 1 || idPerfil === 2) {
-      // Si es Admin o Superadmin
       const [docentes, estudiantes, grupos, inscripciones, materias, carreras, horarios, planteles, roles, administradores] = await Promise.all([
         pool.query(`SELECT COUNT(*) AS cantidad FROM dbo_docente`),
         pool.query(`SELECT COUNT(*) AS cantidad FROM dbo_alumno`),
