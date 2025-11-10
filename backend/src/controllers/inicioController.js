@@ -3,7 +3,7 @@ const pool = require('../db/pool');
 exports.obtenerInicio = async (req, res) => {
   const usuario = req.session.usuario;
   if (!usuario) return res.status(401).json({ mensaje: 'No autenticado' });
-
+  console.log('ID de usuario en sesión:', usuario.idUsuario);
   try {
     const resultadoObjeto = await pool.query(
       `SELECT u.idUsuario, u.usuario, p.nombre, p.apellido_paterno, p.apellido_materno, lp.nombre AS perfil, lp.idPerfil
