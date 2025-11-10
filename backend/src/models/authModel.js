@@ -110,18 +110,18 @@ const getDatosPersonales = async (idUsuario) => {
     `SELECT u.idUsuario, u.nuevoUsuario, u.status,
             p.nombre, p.apellido_paterno, p.apellido_materno, 
             u.usuario, u.correo_electronico, 
-            DATE_FORMAT(p.fecha_de_nacimiento, '%Y-%m-%d') AS fechaNacimiento,
+            TO_CHAR(p.fecha_de_nacimiento, 'YYYY-MM-DD') AS fechaNacimiento, // <--- CORREGIDO A TO_CHAR
             p.sexo, p.curp, 
             m.municipio, e.estado, 
             lp.idPerfil, lp.nombre AS perfil,
             u.ultimo_login
-     FROM dbo_usuario u
-     LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
-     INNER JOIN dbo_persona p ON u.idPersona = p.idPersona
-     INNER JOIN dbo_estados e ON p.idEstado = e.idEstado
-     INNER JOIN dbo_municipios m ON p.idMunicipio = m.idMunicipio
-     LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
-     WHERE u.idUsuario = $1`,
+      FROM dbo_usuario u
+      LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
+      INNER JOIN dbo_persona p ON u.idPersona = p.idPersona
+      INNER JOIN dbo_estados e ON p.idEstado = e.idEstado
+      INNER JOIN dbo_municipios m ON p.idMunicipio = m.idMunicipio
+      LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
+      WHERE u.idUsuario = $1`,
     [idUsuario]
   );
   return rows[0];
