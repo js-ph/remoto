@@ -193,7 +193,35 @@ function AdminPageContent() {
             <input type="text" placeholder="Nombre" value={formData.nombre || ''} onChange={e => setFormData({ ...formData, nombre: e.target.value })} required className="p-2 border rounded w-full"/>
             <input type="text" placeholder="Apellido Paterno" value={formData.apellido_paterno || ''} onChange={e => setFormData({ ...formData, apellido_paterno: e.target.value })} required className="p-2 border rounded w-full"/>
             <input type="text" placeholder="Apellido Materno" value={formData.apellido_materno || ''} onChange={e => setFormData({ ...formData, apellido_materno: e.target.value })} required className="p-2 border rounded w-full"/>
-            <input type="text" placeholder="Usuario" value={formData.usuario || ''} onChange={e => setFormData({ ...formData, usuario: e.target.value })} className="p-2 border rounded w-full" required readOnly={editando}/>
+            {tipoUsuario !== 'Alumno' ? (
+            <input 
+                type="text" 
+                placeholder="Usuario" 
+                value={formData.usuario || ''} 
+                onChange={e => setFormData({ ...formData, usuario: e.target.value })} 
+                className="p-2 border rounded w-full" 
+                required={!editando} // Requerido solo para creación de Docente/Admin
+                readOnly={editando} 
+            />
+                ) : (
+            <>
+                {editando ? (
+                    // Si es Alumno y EDICIÓN, lo mostramos como solo lectura
+                    <input 
+                        type="text" 
+                        placeholder="Matrícula/Usuario" 
+                        value={formData.usuario || ''} 
+                        className="p-2 border rounded w-full bg-gray-200 dark:bg-gray-700"
+                        readOnly 
+                    />
+                ) : (
+                    // Si es Alumno y CREACIÓN, NO mostramos el input, solo el mensaje
+                    <p className="text-sm text-gray-500 dark:text-gray-400 p-2">
+                        El usuario y matrícula del alumno se generarán automáticamente.
+                    </p>
+                  )}
+                </>
+            )}
             <input type="password" placeholder="Contraseña" value={formData.contrasena || ''} onChange={e => setFormData({ ...formData, contrasena: e.target.value })} required className="p-2 border rounded w-full"/>
             <input type="email" placeholder="Correo Electrónico" value={formData.correo_electronico || ''} onChange={e => setFormData({ ...formData, correo_electronico: e.target.value })} required className="p-2 border rounded w-full"/>
             <input type="text" placeholder="CURP" value={formData.curp || ''} onChange={e => setFormData({ ...formData, curp: e.target.value })} required className="p-2 border rounded w-full"/>
