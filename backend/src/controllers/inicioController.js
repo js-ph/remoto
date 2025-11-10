@@ -8,7 +8,7 @@ exports.obtenerInicio = async (req, res) => {
     const resultadoObjeto = await pool.query(
       `SELECT u.idUsuario, u.usuario, p.nombre, p.apellido_paterno, p.apellido_materno, lp.nombre AS perfil, lp.idPerfil
         FROM dbo_usuario u
-        LEFT JOIN dbo_persona p ON u.idPersona = p.idPersona // <-- Cambiado a LEFT JOIN
+        LEFT JOIN dbo_persona p ON u.idPersona = p.idPersona 
         LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
         LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
         WHERE u.idUsuario = $1`, 
