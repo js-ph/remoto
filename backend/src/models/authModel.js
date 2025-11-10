@@ -17,25 +17,16 @@ const recordLogout = async (idUsuario) => {
 };
 
 const findUserByUsername = async (usuario) => {
-    // Consulta TEMPORAL: Solo busca en la tabla de usuario.
     const rows = await pool.query( 
-        `SELECT u.idUsuario, u.usuario, u.contrasena, u.status, u.nuevoUsuario
+        `SELECT u.idUsuario, u.usuario, u.contrasena, u.status, u.nuevoUsuario,
+                lp.idPerfil, lp.nombre AS perfil
          FROM dbo_usuario u
-         WHERE LOWER(TRIM(u.usuario)) = LOWER(TRIM($1))`,
+         LEFT JOIN dbo_usuario_perfil up ON u.idUsuario = up.idUsuario
+         LEFT JOIN dbo_login_perfil lp ON up.idPerfil = lp.idPerfil
+         WHERE u.usuario = $1`,
         [usuario]
     );
-    
-    // Si la fila se encuentra, devolvemos un objeto con la info básica.
-    if (rows[0]) {
-        return {
-            ...rows[0],
-            // Los campos de perfil serán NULL o 'temporal' hasta que los joins funcionen
-            idPerfil: null, 
-            perfil: 'temporal' 
-        };
-    }
-    
-    return null;
+    return rows[0] || null;
 };
 
 const updatePasswordHash = async (idUsuario, nuevoHash) => {
