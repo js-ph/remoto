@@ -1,30 +1,39 @@
-const mariadb = require('mariadb');
+const { Pool } = require('pg'); // Cliente de PostgreSQL
 require('dotenv').config();
 
-// Permitir que el backend arranque sin una base de datos configurada (p. ej., en tests)
-const urlString = process.env.URL_DATABASE;
+// Usamos DATABASE_URL (estándar de Render/Neon) o URL_DATABASE (tu variable actual)
+const connectionString = process.env.DATABASE_URL || process.env.URL_DATABASE;
 
-if (!urlString) {
-  // Exporta un stub que falla de forma explícita si se intenta usar sin URL configurada
+if (!connectionString) {
+  // Exporta el stub si no está configurada la URL
   const notConfigured = async () => {
-    throw new Error('URL_DATABASE no configurada. Define la variable de entorno URL_DATABASE para habilitar el acceso a la DB.');
+    throw new Error('La URL de la base de datos no está configurada (DATABASE_URL o URL_DATABASE).');
   };
+  
+  // El pool de 'pg' usa 'query' y 'connect'
   module.exports = {
-    getConnection: notConfigured,
     query: notConfigured,
+    connect: notConfigured,
     end: async () => {},
   };
 } else {
-  const dbUrl = new URL(urlString);
+  
+  const config = {
+    connectionString: connectionString,
+    connectionTimeoutMillis: 5000, // Opcional: tiempo de espera
+  };
 
-  const pool = mariadb.createPool({
-    host: dbUrl.hostname,
-    port: dbUrl.port,
-    user: dbUrl.username,
-    password: dbUrl.password,
-    database: dbUrl.pathname.replace('/', ''),
-    connectionLimit: 5,
-  });
+  // Configuración SSL: Necesaria si te conectas a Neon/Render desde fuera de su red interna.
+  if (connectionString.includes('render.com') || connectionString.includes('neon.tech') || process.env.NODE_ENV !== 'production') {
+    config.ssl = {
+      // Usar 'rejectUnauthorized: false' es común en desarrollo/test para ignorar problemas de certificado,
+      // pero debe ser revisado para producción si se accede externamente.
+      rejectUnauthorized: false 
+    };
+  }
+  
+  const pool = new Pool(config);
 
+  console.log('Cliente PostgreSQL configurado y listo.');
   module.exports = pool;
 }
