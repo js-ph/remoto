@@ -1,9 +1,9 @@
 const pool = require('../db/pool');
 
-const registrarAuditoria = async (idUsuario, accion, tabla_afectada = null, id_registro_afectado = null, observaciones = null) => {
+const registrarAuditoria = async (idUsuario, accion, observaciones = null) => {
   try {
     await pool.query(
-      `INSERT INTO dbo_auditoria (idUsuario, accion, tabla_afectada, id_registro_afectado, observaciones)
+      `INSERT INTO dbo_auditoria (idUsuario, accion, observaciones)
         VALUES ($1, $2, $3, $4, $5)`,
       [idUsuario, accion, tabla_afectada, id_registro_afectado, observaciones]
     );
